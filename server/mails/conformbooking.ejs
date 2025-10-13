@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Booking Confirmation</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f9f9f9; color: #222; }
+        .container { background: #fff; padding: 32px; border-radius: 8px; max-width: 500px; margin: 40px auto; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+        h2 { color: #2a7ae2; }
+        .details { margin: 24px 0; }
+        .details span { display: block; margin-bottom: 8px; }
+        .footer { margin-top: 32px; font-size: 0.95em; color: #888; }
+        .cta-btn { display: inline-block; margin-top: 20px; padding: 12px 28px; background: #2a7ae2; color: #fff; border-radius: 5px; text-decoration: none; font-weight: bold; }
+        .support { margin-top: 24px; font-size: 1em; color: #444; }
+        .desc { margin: 16px 0 8px 0; color: #555; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Booking Confirmed!</h2>
+        <p>Dear <%= user && user.name ? user.name : 'Traveler' %>,</p>
+        <p>Thank you for booking with Flyobo Travel. Your booking has been successfully placed.</p>
+        <div class="details">
+            <span><strong>Booking ID:</strong> <%= booking._id %></span>
+            <span><strong>Package Name:</strong> <%= booking.name %></span>
+            <span><strong>Price:</strong> $<%= booking.price %></span>
+            <span><strong>Booking Date:</strong> <%= booking.date %></span>
+        </div>
+        <% if (booking.description) { %>
+        <div class="desc">
+            <strong>Package Description:</strong> <%= booking.description %>
+        </div>
+        <% } %>
+        <a href="<%= booking.viewUrl || '#' %>" class="cta-btn">View Your Booking</a>
+        <div class="support">
+            If you have any questions, feel free to contact our support team at <a href="mailto:support@flyobo.com">support@flyobo.com</a> or call +1-800-FLYOBO.
+        </div>
+        <p>We look forward to providing you with an amazing travel experience!</p>
+        <div class="footer">
+            &copy; <%= new Date().getFullYear() %> Flyobo Travel. All rights reserved.
+        </div>
+    </div>
+</body>
+</html> 

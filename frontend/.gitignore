@@ -1,0 +1,7 @@
+/frontend/build/
+/build/
+/android/app/build/
+/ios/Pods/
+/.idea/
+/.gradle/
+/.venv/

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Verify Your University Vehicle Account</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .logo {
+            text-align: center;
+            padding: 25px 0;
+        }
+
+        .header {
+            background-color: #0A2472;
+            color: #ffffff;
+            padding: 25px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 26px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 17px;
+            margin: 0;
+        }
+
+        .content {
+            padding: 30px;
+            line-height: 1.6;
+        }
+
+        .content p {
+            font-size: 16px;
+            margin-bottom: 18px;
+        }
+
+        .otp-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .otp-code {
+            font-size: 36px;
+            font-weight: bold;
+            color: #0A2472;
+            background: #f1f1f1;
+            padding: 20px 40px;
+            border-radius: 10px;
+            border: 2px dashed #0A2472;
+            letter-spacing: 4px;
+        }
+
+        .btn-verify {
+            display: inline-block;
+            background-color: #0A2472;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .warning {
+            font-size: 15px;
+            color: #555;
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #ffeeba;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 13px;
+            color: #777;
+            background-color: #f1f1f1;
+            padding: 20px;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .otp-code {
+                font-size: 28px;
+                padding: 15px 30px;
+            }
+
+            .btn-verify {
+                padding: 12px 24px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="https://via.placeholder.com/150x50?text=University+Logo" alt="University Vehicle System Logo" style="height:50px;" />
+        </div>
+
+        <div class="header">
+            <h1>University Vehicle Entry & Exit</h1>
+            <p>Secure Access Management Portal</p>
+        </div>
+
+        <div class="content">
+            <p>Hello <strong><%= name %></strong>,</p>
+
+            <p>Welcome to the University Vehicle Entry & Exit System!  
+            To complete your registration and secure your account, please use the following One-Time Password (OTP):</p>
+
+            <div class="otp-container">
+                <span class="otp-code"><%= otp %></span>
+            </div>
+
+            <div style="text-align: center;">
+                <a href="https://your-frontend-domain.com/verify?email=<%= encodeURIComponent(email) %>&otp=<%= otp %>" class="btn-verify">Verify Account</a>
+            </div>
+
+            <p class="warning">
+                ⚠️ This OTP is valid for <strong>10 minutes</strong> only. Do not share it with anyone.
+            </p>
+
+            <p>If you didn’t request this, please ignore this email or contact system support immediately.</p>
+
+            <p>Thank you for joining our digital access system!</p>
+
+            <p>Best regards,<br/><strong>University Vehicle Management Team</strong></p>
+        </div>
+
+        <div class="footer">
+            &copy; <%= new Date().getFullYear() %> University Vehicle Entry & Exit System. All rights reserved.
+        </div>
+    </div>
+</body>
+</html>
