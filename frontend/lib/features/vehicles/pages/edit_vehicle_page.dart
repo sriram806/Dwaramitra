@@ -16,9 +16,9 @@ class _EditVehiclePageState extends State<EditVehiclePage> {
   final _formKey = GlobalKey<FormState>();
   final _vehicleNumberController = TextEditingController();
   final _ownerNameController = TextEditingController();
-  final _ownerPhoneController = TextEditingController();
-  final _parkingSlotController = TextEditingController();
-  final _parkingFeeController = TextEditingController();
+  final _contactNumberController = TextEditingController();
+  final _gateNameController = TextEditingController();
+  final _ownerRoleController = TextEditingController();
   final _notesController = TextEditingController();
 
   String _selectedVehicleType = 'car';
@@ -31,12 +31,12 @@ class _EditVehiclePageState extends State<EditVehiclePage> {
   }
 
   void _initializeFields() {
-    _vehicleNumberController.text = widget.vehicle.plateNumber;
+    _vehicleNumberController.text = widget.vehicle.vehicleNumber;
     _selectedVehicleType = widget.vehicle.vehicleType;
     _ownerNameController.text = widget.vehicle.ownerName;
-    _ownerPhoneController.text = widget.vehicle.ownerPhone;
-    _parkingSlotController.text = widget.vehicle.parkingSlot ?? '';
-    _parkingFeeController.text = widget.vehicle.parkingFee?.toString() ?? '0.0';
+    _contactNumberController.text = widget.vehicle.contactNumber;
+    _gateNameController.text = widget.vehicle.gateName;
+    _ownerRoleController.text = widget.vehicle.ownerRole;
     _notesController.text = ''; // Notes not available in current model
   }
 
@@ -44,9 +44,9 @@ class _EditVehiclePageState extends State<EditVehiclePage> {
   void dispose() {
     _vehicleNumberController.dispose();
     _ownerNameController.dispose();
-    _ownerPhoneController.dispose();
-    _parkingSlotController.dispose();
-    _parkingFeeController.dispose();
+    _contactNumberController.dispose();
+    _gateNameController.dispose();
+    _ownerRoleController.dispose();
     _notesController.dispose();
     super.dispose();
   }
@@ -152,17 +152,17 @@ class _EditVehiclePageState extends State<EditVehiclePage> {
                         ),
                         const SizedBox(height: 16),
                         
-                        // Parking Slot
+                        // Gate Name
                         TextFormField(
-                          controller: _parkingSlotController,
+                          controller: _gateNameController,
                           decoration: const InputDecoration(
-                            labelText: 'Parking Slot *',
-                            prefixIcon: Icon(Icons.local_parking),
+                            labelText: 'Gate Name *',
+                            prefixIcon: Icon(Icons.location_on),
                             border: OutlineInputBorder(),
                           ),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return 'Please enter parking slot';
+                              return 'Please enter gate name';
                             }
                             return null;
                           },
@@ -211,18 +211,18 @@ class _EditVehiclePageState extends State<EditVehiclePage> {
                         ),
                         const SizedBox(height: 16),
                         
-                        // Owner Phone
+                        // Contact Number
                         TextFormField(
-                          controller: _ownerPhoneController,
+                          controller: _contactNumberController,
                           decoration: const InputDecoration(
-                            labelText: 'Owner Phone *',
+                            labelText: 'Contact Number *',
                             prefixIcon: Icon(Icons.phone),
                             border: OutlineInputBorder(),
                           ),
                           keyboardType: TextInputType.phone,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return 'Please enter owner phone number';
+                              return 'Please enter contact number';
                             }
                             if (value.trim().length < 10) {
                               return 'Please enter a valid phone number';
@@ -256,22 +256,16 @@ class _EditVehiclePageState extends State<EditVehiclePage> {
                         ),
                         const SizedBox(height: 16),
                         
-                        // Parking Fee
+                        // Owner Role
                         TextFormField(
-                          controller: _parkingFeeController,
+                          controller: _ownerRoleController,
                           decoration: const InputDecoration(
-                            labelText: 'Parking Fee (₹)',
-                            prefixIcon: Icon(Icons.currency_rupee),
+                            labelText: 'Owner Role',
+                            prefixIcon: Icon(Icons.person),
                             border: OutlineInputBorder(),
                           ),
-                          keyboardType: TextInputType.number,
                           validator: (value) {
-                            if (value != null && value.isNotEmpty) {
-                              final fee = double.tryParse(value);
-                              if (fee == null || fee < 0) {
-                                return 'Please enter a valid fee amount';
-                              }
-                            }
+                            // Owner role is optional
                             return null;
                           },
                         ),
@@ -350,21 +344,16 @@ class _EditVehiclePageState extends State<EditVehiclePage> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      final parkingFee = _parkingFeeController.text.isNotEmpty
-          ? double.tryParse(_parkingFeeController.text) ?? 0.0
-          : 0.0;
-
       context.read<VehicleCubit>().updateVehicle(
         id: widget.vehicle.id,
         vehicleNumber: _vehicleNumberController.text.trim(),
         vehicleType: _selectedVehicleType,
         ownerName: _ownerNameController.text.trim(),
-        ownerPhone: _ownerPhoneController.text.trim(),
-        parkingSlot: _parkingSlotController.text.trim(),
-        parkingFee: parkingFee,
-        notes: _notesController.text.trim().isEmpty 
+        contactNumber: _contactNumberController.text.trim(),
+        gateName: _gateNameController.text.trim(),
+        ownerRole: _ownerRoleController.text.trim().isEmpty 
             ? null 
-            : _notesController.text.trim(),
+            : _ownerRoleController.text.trim(),
       );
     }
   }

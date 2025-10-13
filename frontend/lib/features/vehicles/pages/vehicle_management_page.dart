@@ -306,7 +306,7 @@ class _VehicleManagementPageState extends State<VehicleManagementPage> {
                   Icon(Icons.local_parking, size: 16, color: Colors.grey[600]),
                   const SizedBox(width: 4),
                   Text(
-                    'Slot: ${vehicle.parkingSlot}',
+                    'Gate: ${vehicle.gateName}',
                     style: TextStyle(color: Colors.grey[600]),
                   ),
                   const SizedBox(width: 16),

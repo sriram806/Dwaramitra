@@ -109,14 +109,14 @@ class VehicleDetailsPage extends StatelessWidget {
                       vehicle.vehicleType.toUpperCase(),
                     ),
                     _buildInfoTile(
-                      Icons.local_parking,
-                      'Parking Slot',
-                      vehicle.parkingSlot ?? 'Not assigned',
+                      Icons.location_on,
+                      'Gate Name',
+                      vehicle.gateName,
                     ),
                     _buildInfoTile(
-                      Icons.currency_rupee,
-                      'Parking Fee',
-                      '₹${vehicle.parkingFee?.toStringAsFixed(2) ?? '0.00'}',
+                      Icons.person,
+                      'Owner Role',
+                      vehicle.ownerRole,
                     ),
                   ]),
 
@@ -131,15 +131,9 @@ class VehicleDetailsPage extends StatelessWidget {
                     ),
                     _buildInfoTile(
                       Icons.phone,
-                      'Phone Number',
-                      vehicle.ownerPhone,
+                      'Contact Number',
+                      vehicle.contactNumber,
                     ),
-                    if (vehicle.ownerEmail != null)
-                      _buildInfoTile(
-                        Icons.email,
-                        'Email',
-                        vehicle.ownerEmail!,
-                      ),
                   ]),
 
                   const SizedBox(height: 20),

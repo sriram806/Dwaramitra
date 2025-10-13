@@ -20,6 +20,8 @@ class _SignupPageState extends State<SignupPage> {
   final nameController = TextEditingController();
   final formKey = GlobalKey<FormState>();
   bool obscurePassword = true;
+  String selectedGender = 'Male';
+  bool _isNavigating = false;
 
   @override
   void dispose() {
@@ -35,6 +37,7 @@ class _SignupPageState extends State<SignupPage> {
             name: nameController.text.trim(),
             email: emailController.text.trim(),
             password: passwordController.text.trim(),
+            gender: selectedGender,
           );
     }
   }
@@ -63,12 +66,17 @@ class _SignupPageState extends State<SignupPage> {
                 backgroundColor: Colors.red,
               ),
             );
-          } else if (state is AuthSignUp) {
-            // Navigate to OTP verification page
-            Navigator.push(
-              context,
-              OtpVerificationPage.route(state.user),
-            );
+          } else if (state is AuthSignUp && !_isNavigating) {
+            _isNavigating = true;
+            // Navigate to OTP verification page using microtask to avoid framework issues
+            Future.microtask(() {
+              if (mounted) {
+                Navigator.push(
+                  context,
+                  OtpVerificationPage.route(state.user),
+                );
+              }
+            });
           }
         },
         builder: (context, state) {
@@ -213,6 +221,50 @@ class _SignupPageState extends State<SignupPage> {
                               }
                               return null;
                             },
+                          ),
+                          const SizedBox(height: 15),
+
+                          // Gender Selection
+                          Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(8),
+                              color: Colors.white,
+                            ),
+                            child: Row(
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 12),
+                                  child: Icon(Icons.person_outline),
+                                ),
+                                Expanded(
+                                  child: DropdownButtonHideUnderline(
+                                    child: DropdownButton<String>(
+                                      value: selectedGender,
+                                      hint: const Text("Select Gender"),
+                                      isExpanded: true,
+                                      items: const [
+                                        DropdownMenuItem(
+                                          value: 'Male',
+                                          child: Text('Male'),
+                                        ),
+                                        DropdownMenuItem(
+                                          value: 'Female',
+                                          child: Text('Female'),
+                                        ),
+                                      ],
+                                      onChanged: (String? newValue) {
+                                        if (newValue != null) {
+                                          setState(() {
+                                            selectedGender = newValue;
+                                          });
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                           const SizedBox(height: 25),
 

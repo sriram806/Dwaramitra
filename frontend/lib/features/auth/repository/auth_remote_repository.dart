@@ -14,6 +14,7 @@ class AuthRemoteRepository {
     required String name,
     required String email,
     required String password,
+    required String gender,
   }) async {
     try {
       final res = await http.post(
@@ -27,6 +28,7 @@ class AuthRemoteRepository {
           'name': name,
           'email': email,
           'password': password,
+          'gender': gender,
         }),
       );
 

@@ -46,11 +46,16 @@ class _LoginPageState extends State<LoginPage> {
               SnackBar(content: Text(state.error)),
             );
           } else if (state is AuthLoggedIn) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              HomePage.route(),
-              (_) => false,
-            );
+            // Use microtask to avoid widget lifecycle issues
+            Future.microtask(() {
+              if (mounted) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  HomePage.route(),
+                  (_) => false,
+                );
+              }
+            });
           }
         },
         builder: (context, state) {

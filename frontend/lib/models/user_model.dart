@@ -8,6 +8,7 @@ class UserModel {
   final String token;
   final bool isAccountVerified;
   final String? phone;
+  final String? gender;
   final String? universityId;
   final String? department;
   final String designation;
@@ -23,6 +24,7 @@ class UserModel {
     required this.token,
     required this.isAccountVerified,
     this.phone,
+    this.gender,
     this.universityId,
     this.department,
     required this.designation,
@@ -39,6 +41,7 @@ class UserModel {
     String? token,
     bool? isAccountVerified,
     String? phone,
+    String? gender,
     String? universityId,
     String? department,
     String? designation,
@@ -54,6 +57,7 @@ class UserModel {
       token: token ?? this.token,
       isAccountVerified: isAccountVerified ?? this.isAccountVerified,
       phone: phone ?? this.phone,
+      gender: gender ?? this.gender,
       universityId: universityId ?? this.universityId,
       department: department ?? this.department,
       designation: designation ?? this.designation,
@@ -72,6 +76,7 @@ class UserModel {
       'token': token,
       'isAccountVerified': isAccountVerified,
       'phone': phone,
+      'gender': gender,
       'universityId': universityId,
       'department': department,
       'designation': designation,
@@ -90,6 +95,7 @@ class UserModel {
       token: map['token'] ?? '',
       isAccountVerified: map['isAccountVerified'] ?? false,
       phone: map['phone'],
+      gender: map['gender'],
       universityId: map['universityId'],
       department: map['department'],
       designation: map['designation'] ?? 'Student',
@@ -107,7 +113,7 @@ class UserModel {
 
   @override
   String toString() {
-    return 'UserModel(id: $id, email: $email, name: $name, token: $token, isAccountVerified: $isAccountVerified, phone: $phone, universityId: $universityId, department: $department, designation: $designation, role: $role, avatar: $avatar, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'UserModel(id: $id, email: $email, name: $name, token: $token, isAccountVerified: $isAccountVerified, phone: $phone, gender: $gender, universityId: $universityId, department: $department, designation: $designation, role: $role, avatar: $avatar, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -120,6 +126,7 @@ class UserModel {
         other.token == token &&
         other.isAccountVerified == isAccountVerified &&
         other.phone == phone &&
+        other.gender == gender &&
         other.universityId == universityId &&
         other.department == department &&
         other.designation == designation &&
@@ -137,6 +144,7 @@ class UserModel {
         token.hashCode ^
         isAccountVerified.hashCode ^
         phone.hashCode ^
+        gender.hashCode ^
         universityId.hashCode ^
         department.hashCode ^
         designation.hashCode ^

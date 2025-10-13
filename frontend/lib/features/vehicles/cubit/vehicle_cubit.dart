@@ -45,10 +45,9 @@ class VehicleCubit extends Cubit<VehicleState> {
     required String vehicleNumber,
     required String vehicleType,
     required String ownerName,
-    required String ownerPhone,
-    required String parkingSlot,
-    double? parkingFee,
-    String? notes,
+    required String contactNumber,
+    required String gateName,
+    String? ownerRole,
   }) async {
     try {
       emit(VehicleAdding());
@@ -57,10 +56,9 @@ class VehicleCubit extends Cubit<VehicleState> {
         vehicleNumber: vehicleNumber,
         vehicleType: vehicleType,
         ownerName: ownerName,
-        ownerPhone: ownerPhone,
-        parkingSlot: parkingSlot,
-        parkingFee: parkingFee,
-        notes: notes,
+        ownerPhone: contactNumber, // Map contactNumber to ownerPhone for old repository
+        parkingSlot: gateName, // Map gateName to parkingSlot for old repository
+        notes: ownerRole,
       );
 
       emit(VehicleOperationSuccess('Vehicle added successfully!', vehicle: vehicle));
@@ -80,10 +78,9 @@ class VehicleCubit extends Cubit<VehicleState> {
     String? vehicleNumber,
     String? vehicleType,
     String? ownerName,
-    String? ownerPhone,
-    String? parkingSlot,
-    double? parkingFee,
-    String? notes,
+    String? contactNumber,
+    String? gateName,
+    String? ownerRole,
   }) async {
     try {
       emit(VehicleUpdating());
@@ -93,10 +90,9 @@ class VehicleCubit extends Cubit<VehicleState> {
         vehicleNumber: vehicleNumber,
         vehicleType: vehicleType,
         ownerName: ownerName,
-        ownerPhone: ownerPhone,
-        parkingSlot: parkingSlot,
-        parkingFee: parkingFee,
-        notes: notes,
+        ownerPhone: contactNumber, // Map contactNumber to ownerPhone for old repository
+        parkingSlot: gateName, // Map gateName to parkingSlot for old repository
+        notes: ownerRole,
       );
 
       emit(VehicleOperationSuccess('Vehicle updated successfully!', vehicle: vehicle));

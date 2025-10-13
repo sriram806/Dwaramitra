@@ -27,6 +27,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   int _secondsRemaining = 30;
   bool _canResend = false;
   Timer? _timer;
+  bool _isNavigating = false;
 
   @override
   void initState() {
@@ -67,14 +68,20 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
         title: const Text('Verify OTP'),
         centerTitle: true,
       ),
-      body: BlocConsumer<AuthCubit, AuthState>(
+      body: BlocListener<AuthCubit, AuthState>(
         listener: (context, state) {
-          if (state is AuthOtpVerified) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              HomePage.route(),
-              (route) => false,
-            );
+          if (state is AuthOtpVerified && !_isNavigating) {
+            _isNavigating = true;
+            // Use microtask to avoid widget lifecycle issues
+            Future.microtask(() {
+              if (mounted) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  HomePage.route(),
+                  (route) => false,
+                );
+              }
+            });
           } else if (state is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -84,7 +91,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
             );
           }
         },
-        builder: (context, state) {
+        child: BlocBuilder<AuthCubit, AuthState>(
+          builder: (context, state) {
           if (state is AuthLoading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -212,7 +220,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               ),
             ),
           );
-        },
+          },
+        ),
       ),
     );
   }

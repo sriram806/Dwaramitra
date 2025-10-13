@@ -22,7 +22,7 @@ class TaskRemoteRepository {
       final res = await http.post(Uri.parse("${Constants.backendUri}/tasks"),
           headers: {
             'Content-Type': 'application/json',
-            'x-auth-token': token,
+            'Authorization': 'Bearer $token',
           },
           body: jsonEncode(
             {
@@ -65,7 +65,7 @@ class TaskRemoteRepository {
         Uri.parse("${Constants.backendUri}/tasks"),
         headers: {
           'Content-Type': 'application/json',
-          'x-auth-token': token,
+          'Authorization': 'Bearer $token',
         },
       );
 
@@ -105,7 +105,7 @@ class TaskRemoteRepository {
         Uri.parse("${Constants.backendUri}/tasks/sync"),
         headers: {
           'Content-Type': 'application/json',
-          'x-auth-token': token,
+          'Authorization': 'Bearer $token',
         },
         body: jsonEncode(taskListInMap),
       );
