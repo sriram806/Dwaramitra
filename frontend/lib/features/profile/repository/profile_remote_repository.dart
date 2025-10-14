@@ -42,8 +42,14 @@ class ProfileRemoteRepository {
   // Update user profile
   Future<UserModel> updateProfile({
     required String name,
+    String? email,
     String? phone,
-    String? role,
+    String? gender,
+    String? universityId,
+    String? department,
+    String? designation,
+    String? shift,
+    Map<String, dynamic>? avatar,
   }) async {
     try {
       final token = await spService.getToken();
@@ -51,22 +57,36 @@ class ProfileRemoteRepository {
         throw 'Authentication token not found';
       }
 
+      // Build request body with only non-null values
+      final Map<String, dynamic> requestBody = {
+        'name': name,
+      };
+      
+      if (email != null) requestBody['email'] = email;
+      if (phone != null) requestBody['phone'] = phone;
+      if (gender != null) requestBody['gender'] = gender;
+      if (universityId != null) requestBody['universityId'] = universityId;
+      if (department != null) requestBody['department'] = department;
+      if (designation != null) requestBody['designation'] = designation;
+      if (shift != null) requestBody['shift'] = shift;
+      if (avatar != null) requestBody['avatar'] = avatar;
+
       final response = await http.put(
         Uri.parse('${Constants.backendUri}/user/profile'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: jsonEncode({
-          'name': name,
-          'phone': phone,
-          'role': role,
-        }),
+        body: jsonEncode(requestBody),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return UserModel.fromMap(data['user']);
+        if (data['success'] == true && data['user'] != null) {
+          return UserModel.fromMap(data['user']);
+        } else {
+          throw 'Invalid response format';
+        }
       } else {
         final error = jsonDecode(response.body);
         throw error['message'] ?? 'Failed to update profile';
@@ -132,7 +152,7 @@ class ProfileRemoteRepository {
           'Authorization': 'Bearer $token',
         },
         body: jsonEncode({
-          'currentPassword': currentPassword,
+          'oldPassword': currentPassword,
           'newPassword': newPassword,
         }),
       );
@@ -157,7 +177,7 @@ class ProfileRemoteRepository {
       }
 
       final response = await http.delete(
-        Uri.parse('${Constants.backendUri}/user/account'),
+        Uri.parse('${Constants.backendUri}/user/delete-account'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',

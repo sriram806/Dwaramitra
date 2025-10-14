@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/features/auth/cubit/auth_cubit.dart';
 import 'package:frontend/features/profile/cubit/profile_cubit.dart';
 import 'package:frontend/features/profile/pages/edit_profile_page.dart';
+import 'package:frontend/features/profile/pages/overview_page.dart';
+import 'package:frontend/features/profile/pages/change_password_page.dart';
+import 'package:frontend/features/profile/pages/settings_page.dart';
+import 'package:frontend/features/support/pages/help_support_page.dart';
 import 'package:frontend/features/profile/components/atoms/profile_loading_view.dart';
 import 'package:frontend/features/profile/components/atoms/profile_error_view.dart';
-import 'package:frontend/features/profile/components/molecules/profile_header.dart';
-import 'package:frontend/features/profile/components/molecules/profile_info_section.dart';
-import 'package:frontend/features/profile/components/molecules/profile_actions_section.dart';
+import 'package:frontend/features/profile/components/molecules/modern_profile_header.dart';
+import 'package:frontend/features/profile/components/atoms/profile_action_button_modern.dart';
+import 'package:frontend/features/profile/components/atoms/profile_menu_item.dart';
+import 'package:frontend/features/profile/components/molecules/profile_page_scaffold.dart';
+import 'package:frontend/core/services/logout_service.dart';
 
 class ProfilePage extends StatefulWidget {
   static MaterialPageRoute route() => MaterialPageRoute(
@@ -29,26 +34,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        title: const Text(
-          'Profile',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: const Color(0xFF4285F4),
-        iconTheme: const IconThemeData(color: Colors.white),
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => context.read<ProfileCubit>().refreshProfile(),
-          ),
-        ],
-      ),
+    return ProfilePageScaffold(
+      title: 'Profile',
       body: BlocListener<ProfileCubit, ProfileState>(
         listener: (context, state) {
           if (state is ProfileError) {
@@ -91,38 +78,108 @@ class _ProfilePageState extends State<ProfilePage> {
 
             return user == null
                 ? const ProfileLoadingView()
-                : RefreshIndicator(
-                    onRefresh: () => context.read<ProfileCubit>().refreshProfile(),
-                    child: SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      child: Column(
-                        children: [
-                          // Profile Header
-                          ProfileHeader(
-                            user: user,
-                            onAvatarTap: () => _navigateToEditProfile(user),
-                          ),
-                          
-                          // Profile Information
-                          ProfileInfoSection(user: user),
-                          
-                          // Profile Actions
-                          ProfileActionsSection(
-                            onEditProfile: () => _navigateToEditProfile(user),
-                            onChangePassword: _showChangePasswordDialog,
-                            onLogout: _showLogoutDialog,
-                          ),
-                          
-                          const SizedBox(height: 20),
-                        ],
-                      ),
-                    ),
-                  );
+                : _buildModernProfileContent(user);
           },
         ),
       ),
     );
   }
+
+  Widget _buildModernProfileContent(user) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          // Modern Profile Header Component
+          ModernProfileHeader(
+            avatarUrl: user.avatar?.url,
+            name: user.name,
+            email: user.email,
+            actionButtons: [
+              ModernActionButton(
+                icon: Icons.edit,
+                label: 'EDIT PROFILE',
+                onTap: () => _navigateToEditProfile(user),
+                backgroundColor: Colors.orange,
+              ),
+            ],
+          ),
+          
+          // Menu Items using reusable components
+          ProfileMenuItem(
+            icon: Icons.settings,
+            title: 'Settings',
+            subtitle: 'Manage your preferences',
+            onTap: () => _navigateToSettings(),
+            iconColor: Colors.blue,
+          ),
+          
+          ProfileMenuItem(
+            icon: Icons.lock,
+            title: 'Change Password',
+            subtitle: 'Update your security',
+            onTap: () => _navigateToChangePassword(),
+            iconColor: Colors.orange,
+          ),
+          
+          ProfileMenuItem(
+            icon: Icons.visibility,
+            title: 'Overview',
+            subtitle: 'View your information',
+            onTap: () => _navigateToOverview(user),
+            iconColor: Colors.green,
+          ),
+          
+          ProfileMenuItem(
+            icon: Icons.help_outline,
+            title: 'Help & Support',
+            subtitle: 'Get assistance',
+            onTap: () => Navigator.push(context, HelpSupportPage.route()),
+            iconColor: Colors.purple,
+          ),
+          
+          ProfileMenuItem(
+            icon: Icons.logout,
+            title: 'Log out',
+            subtitle: 'Sign out of your account',
+            onTap: () => LogoutService.showAdvancedLogoutDialog(context),
+            iconColor: Colors.red,
+          ),
+          
+          const SizedBox(height: 40),
+        ],
+      ),
+    );
+  }
+
+  void _navigateToOverview(user) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => OverviewPage(user: user),
+      ),
+    );
+  }
+
+
+
+  void _navigateToSettings() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SettingsPage(user: null), // We'll create this
+      ),
+    );
+  }
+
+  void _navigateToChangePassword() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChangePasswordPage(), // We'll create this
+      ),
+    );
+  }
+
 
   void _navigateToEditProfile(user) {
     Navigator.push(
@@ -135,117 +192,7 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
-  void _showChangePasswordDialog() {
-    final currentPasswordController = TextEditingController();
-    final newPasswordController = TextEditingController();
-    final confirmPasswordController = TextEditingController();
-    bool isLoading = false;
 
-    showDialog(
-      context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: const Text('Change Password'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: currentPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Current Password',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: newPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'New Password',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: confirmPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Confirm New Password',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: isLoading ? null : () => Navigator.pop(dialogContext),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: isLoading
-                  ? null
-                  : () async {
-                      if (newPasswordController.text != confirmPasswordController.text) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Passwords do not match'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                        return;
-                      }
 
-                      setState(() => isLoading = true);
 
-                      try {
-                        await context.read<ProfileCubit>().changePassword(
-                              currentPassword: currentPasswordController.text,
-                              newPassword: newPasswordController.text,
-                            );
-                        Navigator.pop(dialogContext);
-                      } catch (e) {
-                        setState(() => isLoading = false);
-                      }
-                    },
-              child: isLoading
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Change Password'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showLogoutDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              context.read<AuthCubit>().logout();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Logout'),
-          ),
-        ],
-      ),
-    );
-  }
 }

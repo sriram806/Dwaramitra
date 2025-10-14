@@ -156,10 +156,11 @@ export const logout = async (req, res) => {
     res.cookie("access_token", "logout", {
       expires: new Date(Date.now() + 5 * 1000),
       httpOnly: true,
-      secure: NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "production",
     });
     res.status(200).json({ success: true, message: "Logout successful" });
   } catch (error) {
+    console.error("Logout error:", error);
     return res.status(500).json({ success: false, message: "Logout failed" });
   }
 };
@@ -226,28 +227,5 @@ export const resetPassword = async (req, res) => {
     return res.status(200).json({ success: true, message: "Password reset successfully" });
   } catch (error) {
     return res.status(500).json({ success: false, message: "Server error during password reset" });
-  }
-}
-
-// 8. Change Password (Authenticated)
-export const changePassword = async (req, res) => {
-  try {
-    const { oldPassword, newPassword } = req.body;
-    if (!oldPassword || !newPassword) {
-      return res.status(400).json({ success: false, message: "Please provide old and new password" });
-    }
-    const user = await User.findById(req.user._id).select("+password");
-    if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
-    }
-    if (!(await bcrypt.compare(oldPassword, user.password))) {
-      return res.status(400).json({ success: false, message: "Old password is incorrect" });
-    }
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    user.password = hashedPassword;
-    await user.save();
-    return res.status(200).json({ success: true, message: "Password changed successfully" });
-  } catch (error) {
-    return res.status(500).json({ success: false, message: "Server error during password change" });
   }
 }

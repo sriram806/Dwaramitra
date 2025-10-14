@@ -13,6 +13,7 @@ class UserModel {
   final String? department;
   final String designation;
   final String role;
+  final String? shift; // For guards only: 'Day Shift' or 'Night Shift'
   final Avatar? avatar;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -29,6 +30,7 @@ class UserModel {
     this.department,
     required this.designation,
     required this.role,
+    this.shift,
     this.avatar,
     required this.createdAt,
     required this.updatedAt,
@@ -46,6 +48,7 @@ class UserModel {
     String? department,
     String? designation,
     String? role,
+    String? shift,
     Avatar? avatar,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -62,6 +65,7 @@ class UserModel {
       department: department ?? this.department,
       designation: designation ?? this.designation,
       role: role ?? this.role,
+      shift: shift ?? this.shift,
       avatar: avatar ?? this.avatar,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -81,6 +85,7 @@ class UserModel {
       'department': department,
       'designation': designation,
       'role': role,
+      'shift': shift,
       'avatar': avatar?.toMap(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
@@ -100,6 +105,7 @@ class UserModel {
       department: map['department'],
       designation: map['designation'] ?? 'Student',
       role: map['role'] ?? 'user',
+      shift: map['shift'],
       avatar: map['avatar'] != null ? Avatar.fromMap(map['avatar']) : null,
       createdAt: DateTime.parse(map['createdAt'] ?? DateTime.now().toIso8601String()),
       updatedAt: DateTime.parse(map['updatedAt'] ?? DateTime.now().toIso8601String()),
@@ -113,7 +119,7 @@ class UserModel {
 
   @override
   String toString() {
-    return 'UserModel(id: $id, email: $email, name: $name, token: $token, isAccountVerified: $isAccountVerified, phone: $phone, gender: $gender, universityId: $universityId, department: $department, designation: $designation, role: $role, avatar: $avatar, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'UserModel(id: $id, email: $email, name: $name, token: $token, isAccountVerified: $isAccountVerified, phone: $phone, gender: $gender, universityId: $universityId, department: $department, designation: $designation, role: $role, shift: $shift, avatar: $avatar, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -131,6 +137,7 @@ class UserModel {
         other.department == department &&
         other.designation == designation &&
         other.role == role &&
+        other.shift == shift &&
         other.avatar == avatar &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt;
@@ -149,6 +156,7 @@ class UserModel {
         department.hashCode ^
         designation.hashCode ^
         role.hashCode ^
+        shift.hashCode ^
         avatar.hashCode ^
         createdAt.hashCode ^
         updatedAt.hashCode;

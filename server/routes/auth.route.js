@@ -6,8 +6,7 @@ import {
   VerifyOTP,
   ResendOTP,
   forgotPassword,
-  resetPassword,
-  changePassword
+  resetPassword
 } from "../controllers/auth.controller.js";
 import isAuthenticated from '../middleware/isAuthenticated.js';
 
@@ -20,6 +19,5 @@ authRoute.post('/login', login);
 authRoute.post('/logout', isAuthenticated, logout); 
 authRoute.post('/forgot-password', forgotPassword);
 authRoute.post('/reset-password', resetPassword);
-authRoute.put('/change-password', isAuthenticated, changePassword);
 
 export default authRoute;

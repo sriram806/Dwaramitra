@@ -42,6 +42,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'Task App',
       theme: AppTheme.lightThemeMode,
+      debugShowCheckedModeBanner: false,
       home: BlocBuilder<AuthCubit, AuthState>(
         builder: (context, state) {
           if (state is AuthLoggedIn) {

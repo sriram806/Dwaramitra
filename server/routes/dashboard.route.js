@@ -13,10 +13,8 @@ dashboardRouter.use(isAuthenticated);
 // Get comprehensive dashboard statistics
 dashboardRouter.get("/stats", getDashboardStats);
 
-// Get real-time statistics for live updates
 dashboardRouter.get("/realtime", getRealTimeStats);
 
-// Get security alerts and notifications
 dashboardRouter.get("/alerts", getSecurityAlerts);
 
 export default dashboardRouter;

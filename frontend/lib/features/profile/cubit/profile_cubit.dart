@@ -80,8 +80,14 @@ class ProfileCubit extends Cubit<ProfileState> {
   // Update profile
   Future<void> updateProfile({
     required String name,
+    String? email,
     String? phone,
-    String? role,
+    String? gender,
+    String? universityId,
+    String? department,
+    String? designation,
+    String? shift,
+    Map<String, dynamic>? avatar,
   }) async {
     try {
       final currentState = state;
@@ -91,8 +97,14 @@ class ProfileCubit extends Cubit<ProfileState> {
 
       UserModel updatedUser = await _remoteRepository.updateProfile(
         name: name,
+        email: email,
         phone: phone,
-        role: role,
+        gender: gender,
+        universityId: universityId,
+        department: department,
+        designation: designation,
+        shift: shift,
+        avatar: avatar,
       );
 
       await _localRepository.saveUserProfile(updatedUser);
@@ -105,8 +117,13 @@ class ProfileCubit extends Cubit<ProfileState> {
       // Save locally if server update fails
       await _localRepository.updateProfileFields(
         name: name,
+        email: email,
         phone: phone,
-        role: role,
+        gender: gender,
+        universityId: universityId,
+        department: department,
+        designation: designation,
+        shift: shift,
       );
       await _localRepository.setSyncStatus(false);
       
@@ -208,8 +225,13 @@ class ProfileCubit extends Cubit<ProfileState> {
       // Update server with local changes
       UserModel syncedUser = await _remoteRepository.updateProfile(
         name: localUser.name,
+        email: localUser.email,
         phone: localUser.phone,
-        role: localUser.role,
+        gender: localUser.gender,
+        universityId: localUser.universityId,
+        department: localUser.department,
+        designation: localUser.designation,
+        avatar: localUser.avatar?.toMap(),
       );
 
       await _localRepository.saveUserProfile(syncedUser);

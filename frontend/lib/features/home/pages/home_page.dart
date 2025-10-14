@@ -135,11 +135,6 @@ class _HomePageState extends State<HomePage> {
               icon: const Icon(Icons.person),
               tooltip: 'Profile',
             ),
-            IconButton(
-              onPressed: _logout,
-              icon: const Icon(Icons.logout),
-              tooltip: 'Logout',
-            ),
           ],
         ),
         body: currentUser == null
@@ -198,7 +193,11 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Vehicle List
+                  // Role-based Quick Actions
+                  _buildRoleBasedActions(),
+                  const SizedBox(height: 16),
+
+                  // Vehicle List Header
                   Expanded(
                     child: filteredVehicles.isEmpty
                         ? Center(
@@ -232,38 +231,6 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
-        floatingActionButton: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            FloatingActionButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const VehicleManagementPage(),
-                  ),
-                );
-              },
-              heroTag: "manage",
-              backgroundColor: const Color(0xFF4285F4),
-              child: const Icon(Icons.manage_search, color: Colors.white),
-            ),
-            const SizedBox(height: 12),
-            FloatingActionButton.extended(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AddVehiclePage(),
-                  ),
-                );
-              },
-              heroTag: "add",
-              icon: const Icon(Icons.add),
-              label: const Text('Add Vehicle'),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -416,32 +383,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _logout() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Logout'),
-          content: const Text('Are you sure you want to logout?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                context.read<AuthCubit>().logout();
-              },
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('Logout'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
 
 
   void _showExitVehicleDialog(VehicleModel vehicle) {
@@ -488,4 +429,78 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+  Widget _buildRoleBasedActions() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Quick Actions',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              // Add Vehicle
+              Expanded(
+                child: _buildActionCard(
+                  'Add Vehicle',
+                  Icons.add_circle,
+                  Colors.green,
+                  () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AddVehiclePage())),
+                ),
+              ),
+              const SizedBox(width: 12),
+              
+              // Vehicle Management
+              Expanded(
+                child: _buildActionCard(
+                  'Manage',
+                  Icons.manage_search,
+                  Colors.blue,
+                  () => Navigator.push(context, MaterialPageRoute(builder: (context) => const VehicleManagementPage())),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionCard(String title, IconData icon, Color color, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 120,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withOpacity(0.3)),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 32),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.w600,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
 }

@@ -39,16 +39,26 @@ class ProfileLocalRepository {
   // Update specific profile fields locally
   Future<void> updateProfileFields({
     String? name,
+    String? email,
     String? phone,
-    String? role,
+    String? gender,
+    String? universityId,
+    String? department,
+    String? designation,
+    String? shift,
   }) async {
     try {
       final currentUser = await getUserProfile();
       if (currentUser != null) {
         final updatedUser = currentUser.copyWith(
           name: name ?? currentUser.name,
+          email: email ?? currentUser.email,
           phone: phone ?? currentUser.phone,
-          role: role ?? currentUser.role,
+          gender: gender ?? currentUser.gender,
+          universityId: universityId ?? currentUser.universityId,
+          department: department ?? currentUser.department,
+          designation: designation ?? currentUser.designation,
+          shift: shift ?? currentUser.shift,
         );
         await saveUserProfile(updatedUser);
       }

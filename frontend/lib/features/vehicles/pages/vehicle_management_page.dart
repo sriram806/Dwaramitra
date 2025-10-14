@@ -5,6 +5,8 @@ import 'package:frontend/features/vehicles/pages/add_vehicle_page.dart';
 import 'package:frontend/features/vehicles/pages/edit_vehicle_page.dart';
 import 'package:frontend/features/vehicles/pages/vehicle_details_page.dart';
 import 'package:frontend/models/vehicle_model.dart';
+import 'package:frontend/core/widgets/role_based_widget.dart';
+
 
 class VehicleManagementPage extends StatefulWidget {
   const VehicleManagementPage({super.key});
@@ -32,125 +34,135 @@ class _VehicleManagementPageState extends State<VehicleManagementPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
-          'Vehicle Management',
+          'Vehicles',
           style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
           ),
         ),
-        backgroundColor: const Color(0xFF4285F4),
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.black),
         elevation: 0,
+        centerTitle: true,
         actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const AddVehiclePage(),
+          RoleBasedWidget(
+            requiredPermission: 'manage_vehicles',
+            child: Container(
+              margin: const EdgeInsets.only(right: 16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.blue.shade400, Colors.blue.shade600],
                 ),
-              );
-            },
-            icon: const Icon(Icons.add),
-            tooltip: 'Add Vehicle',
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AddVehiclePage(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.add, color: Colors.white),
+                tooltip: 'Add Vehicle',
+              ),
+            ),
           ),
         ],
       ),
       body: Column(
         children: [
-          // Search and Filter Section
+          // Modern Search and Filter Section
           Container(
-            padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
-              color: Color(0xFF4285F4),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20),
-              ),
-            ),
+            margin: const EdgeInsets.all(16),
             child: Column(
               children: [
                 // Search Bar
-                TextField(
-                  controller: _searchController,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: 'Search vehicles...',
-                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
-                    prefixIcon: const Icon(Icons.search, color: Colors.white),
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? IconButton(
-                            onPressed: () {
-                              _searchController.clear();
-                              context.read<VehicleCubit>().clearFilters();
-                            },
-                            icon: const Icon(Icons.clear, color: Colors.white),
-                          )
-                        : null,
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.2),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey.shade200),
                   ),
-                  onChanged: (value) {
-                    if (value.isEmpty) {
-                      context.read<VehicleCubit>().clearFilters();
-                    } else {
-                      context.read<VehicleCubit>().searchVehicles(value);
-                    }
-                  },
-                ),
-                const SizedBox(height: 16),
-                // Filter Chips
-                Row(
-                  children: [
-                    Expanded(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            _buildFilterChip(
-                              'All Status',
-                              _selectedStatus == null,
-                              () {
-                                setState(() {
-                                  _selectedStatus = null;
-                                });
+                  child: TextField(
+                    controller: _searchController,
+                    style: const TextStyle(color: Colors.black87),
+                    onChanged: (value) {
+                      if (value.isEmpty) {
+                        context.read<VehicleCubit>().clearFilters();
+                      } else {
+                        context.read<VehicleCubit>().searchVehicles(value);
+                      }
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Search vehicles by number, owner...',
+                      hintStyle: TextStyle(color: Colors.grey.shade500),
+                      prefixIcon: Icon(Icons.search, color: Colors.grey.shade400),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              onPressed: () {
+                                _searchController.clear();
                                 context.read<VehicleCubit>().clearFilters();
                               },
-                            ),
-                            const SizedBox(width: 8),
-                            _buildFilterChip(
-                              'Parked',
-                              _selectedStatus == 'parked',
-                              () {
-                                setState(() {
-                                  _selectedStatus = 'parked';
-                                });
-                                context.read<VehicleCubit>().filterByStatus('parked');
-                              },
-                            ),
-                            const SizedBox(width: 8),
-                            _buildFilterChip(
-                              'Exited',
-                              _selectedStatus == 'exited',
-                              () {
-                                setState(() {
-                                  _selectedStatus = 'exited';
-                                });
-                                context.read<VehicleCubit>().filterByStatus('exited');
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
+                              icon: Icon(Icons.clear, color: Colors.grey.shade400),
+                            )
+                          : null,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.all(16),
                     ),
-                  ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Modern Filter Chips
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _buildModernFilterChip(
+                        'All Status',
+                        _selectedStatus == null,
+                        () {
+                          setState(() {
+                            _selectedStatus = null;
+                          });
+                          context.read<VehicleCubit>().clearFilters();
+                        },
+                        Icons.list_alt,
+                        Colors.blue,
+                      ),
+                      const SizedBox(width: 12),
+                      _buildModernFilterChip(
+                        'Parked',
+                        _selectedStatus == 'parked',
+                        () {
+                          setState(() {
+                            _selectedStatus = 'parked';
+                          });
+                          context.read<VehicleCubit>().filterByStatus('parked');
+                        },
+                        Icons.local_parking,
+                        Colors.green,
+                      ),
+                      const SizedBox(width: 12),
+                      _buildModernFilterChip(
+                        'Exited',
+                        _selectedStatus == 'exited',
+                        () {
+                          setState(() {
+                            _selectedStatus = 'exited';
+                          });
+                          context.read<VehicleCubit>().filterByStatus('exited');
+                        },
+                        Icons.exit_to_app,
+                        Colors.orange,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -176,36 +188,64 @@ class _VehicleManagementPageState extends State<VehicleManagementPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const AddVehiclePage(),
-            ),
-          );
-        },
-        backgroundColor: const Color(0xFF4285F4),
-        child: const Icon(Icons.add, color: Colors.white),
+      floatingActionButton: RoleBasedWidget(
+        requiredPermission: 'manage_vehicles',
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AddVehiclePage(),
+              ),
+            );
+          },
+          backgroundColor: const Color(0xFF4285F4),
+          child: const Icon(Icons.add, color: Colors.white),
+        ),
       ),
     );
   }
 
-  Widget _buildFilterChip(String label, bool isSelected, VoidCallback onTap) {
+  Widget _buildModernFilterChip(
+    String label, 
+    bool isSelected, 
+    VoidCallback onTap, 
+    IconData icon, 
+    Color color
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white : Colors.white.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(20),
+          color: isSelected ? color : Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(25),
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: color.withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ] : null,
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? const Color(0xFF4285F4) : Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? Colors.white : Colors.grey.shade600,
+              size: 18,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Colors.white : Colors.grey.shade600,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                fontSize: 14,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -228,10 +268,19 @@ class _VehicleManagementPageState extends State<VehicleManagementPage> {
   }
 
   Widget _buildVehicleCard(VehicleModel vehicle) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 15,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: InkWell(
         onTap: () {
           Navigator.push(
@@ -241,102 +290,140 @@ class _VehicleManagementPageState extends State<VehicleManagementPage> {
             ),
           );
         },
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Header Row
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Vehicle Icon
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.blue.shade400, Colors.blue.shade600],
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      _getVehicleIcon(vehicle.vehicleType),
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                  
+                  const SizedBox(width: 16),
+                  
+                  // Vehicle Info
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          vehicle.plateNumber,
+                          vehicle.vehicleNumber,
                           style: const TextStyle(
-                            fontSize: 18,
+                            fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF4285F4),
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          vehicle.ownerName,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey.shade600,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          vehicle.ownerName,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                          vehicle.vehicleType,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey.shade500,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: vehicle.status == 'parked' ? Colors.green : Colors.orange,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          vehicle.status.toUpperCase(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                  
+                  // Status Badge
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: _getStatusColor(vehicle.status),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      vehicle.status.toUpperCase(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        _getVehicleTypeIcon(vehicle.vehicleType),
-                        style: const TextStyle(fontSize: 20),
-                      ),
-                    ],
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              
+              const SizedBox(height: 16),
+              
+              // Info Row
               Row(
                 children: [
-                  Icon(Icons.local_parking, size: 16, color: Colors.grey[600]),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Gate: ${vehicle.gateName}',
-                    style: TextStyle(color: Colors.grey[600]),
+                  Expanded(
+                    child: _buildInfoItem(
+                      Icons.location_on,
+                      'Gate',
+                      vehicle.gateName,
+                      Colors.blue,
+                    ),
                   ),
-                  const SizedBox(width: 16),
-                  Icon(Icons.access_time, size: 16, color: Colors.grey[600]),
-                  const SizedBox(width: 4),
-                  Text(
-                    vehicle.formattedDuration,
-                    style: TextStyle(color: Colors.grey[600]),
+                  Expanded(
+                    child: _buildInfoItem(
+                      Icons.access_time,
+                      'Duration',
+                      '${vehicle.duration}h',
+                      Colors.orange,
+                    ),
+                  ),
+                  Expanded(
+                    child: _buildInfoItem(
+                      Icons.phone,
+                      'Contact',
+                      vehicle.contactNumber,
+                      Colors.green,
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              
+              const SizedBox(height: 16),
+              
+              // Action Buttons
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   if (vehicle.status == 'parked') ...[
-                    TextButton.icon(
-                      onPressed: () {
-                        _showExitConfirmation(vehicle);
-                      },
-                      icon: const Icon(Icons.exit_to_app, size: 16),
-                      label: const Text('Exit'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.orange,
-                      ),
+                    _buildActionButton(
+                      'Exit',
+                      Icons.exit_to_app,
+                      Colors.orange,
+                      () => _showExitConfirmation(vehicle),
                     ),
                     const SizedBox(width: 8),
                   ],
-                  TextButton.icon(
-                    onPressed: () {
+                  _buildActionButton(
+                    'Edit',
+                    Icons.edit,
+                    Colors.blue,
+                    () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -344,22 +431,13 @@ class _VehicleManagementPageState extends State<VehicleManagementPage> {
                         ),
                       );
                     },
-                    icon: const Icon(Icons.edit, size: 16),
-                    label: const Text('Edit'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: const Color(0xFF4285F4),
-                    ),
                   ),
                   const SizedBox(width: 8),
-                  TextButton.icon(
-                    onPressed: () {
-                      _showDeleteConfirmation(vehicle);
-                    },
-                    icon: const Icon(Icons.delete, size: 16),
-                    label: const Text('Delete'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.red,
-                    ),
+                  _buildActionButton(
+                    'Delete',
+                    Icons.delete,
+                    Colors.red,
+                    () => _showDeleteConfirmation(vehicle),
                   ),
                 ],
               ),
@@ -469,20 +547,104 @@ class _VehicleManagementPageState extends State<VehicleManagementPage> {
     );
   }
 
-  String _getVehicleTypeIcon(String type) {
+  IconData _getVehicleIcon(String type) {
     switch (type.toLowerCase()) {
       case 'car':
-        return '🚗';
+        return Icons.directions_car;
       case 'bike':
-        return '🏍️';
+      case 'motorcycle':
+        return Icons.motorcycle;
       case 'truck':
-        return '🚛';
+        return Icons.local_shipping;
       case 'bus':
-        return '🚌';
+        return Icons.directions_bus;
       default:
-        return '🚗';
+        return Icons.directions_car;
     }
   }
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'parked':
+        return Colors.green;
+      case 'exited':
+        return Colors.orange;
+      case 'pending':
+        return Colors.blue;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Widget _buildInfoItem(IconData icon, String label, String value, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.grey.shade600,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey.shade800,
+              fontWeight: FontWeight.w600,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton(String label, IconData icon, Color color, VoidCallback onPressed) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 16, color: color),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+
 
   void _showExitConfirmation(VehicleModel vehicle) {
     showDialog(
@@ -490,7 +652,7 @@ class _VehicleManagementPageState extends State<VehicleManagementPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Exit Vehicle'),
-          content: Text('Are you sure you want to exit ${vehicle.plateNumber}?'),
+          content: Text('Are you sure you want to exit ${vehicle.vehicleNumber}?'),
           actions: [
             TextButton(
               onPressed: () {
@@ -522,7 +684,7 @@ class _VehicleManagementPageState extends State<VehicleManagementPage> {
         return AlertDialog(
           title: const Text('Delete Vehicle'),
           content: Text(
-            'Are you sure you want to delete ${vehicle.plateNumber}? This action cannot be undone.',
+            'Are you sure you want to delete ${vehicle.vehicleNumber}? This action cannot be undone.',
           ),
           actions: [
             TextButton(

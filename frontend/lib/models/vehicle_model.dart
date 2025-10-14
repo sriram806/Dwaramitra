@@ -12,8 +12,8 @@ class VehicleModel {
   final DateTime entryTime;
   final DateTime? exitTime;
   final String gateName;
-  final String status; // 'inside', 'exited'
-  final int duration; // in minutes
+  final String status; 
+  final int duration;
   final String? purpose;
   final String? verifiedBy;
   final String? notes;
