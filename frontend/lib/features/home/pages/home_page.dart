@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/features/auth/cubit/auth_cubit.dart';
-import 'package:frontend/features/profile/pages/profile_page.dart';
+import 'package:frontend/features/auth/presentation/bloc/auth_cubit.dart';
+import 'package:frontend/features/profile/presentation/pages/profile_page.dart';
 import 'package:frontend/features/vehicles/pages/vehicle_management_page.dart';
 import 'package:frontend/features/vehicles/pages/add_vehicle_page.dart';
 import 'package:frontend/models/user_model.dart';
@@ -23,20 +23,48 @@ class _HomePageState extends State<HomePage> {
   List<VehicleModel> vehicles = [];
   List<VehicleModel> filteredVehicles = [];
   String selectedFilter = 'all'; // 'all', 'parked', 'exited'
+  bool isLoadingData = true;
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
-    _loadSampleData();
+    // Show the page immediately, then load data
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadSampleDataAsync();
+    });
+  }
+
+  void _loadSampleDataAsync() async {
+    // Small delay to ensure UI renders first
+    await Future.delayed(const Duration(milliseconds: 100));
+    
+    if (mounted) {
+      // Load sample data here (keeping original logic)
+      _loadSampleData();
+      setState(() {
+        isLoadingData = false;
+      });
+    }
   }
 
   void _loadUserData() {
-    final authState = context.read<AuthCubit>().state;
-    if (authState is AuthLoggedIn) {
-      setState(() {
+    try {
+      final authState = context.read<AuthCubit>().state;
+      if (authState is AuthLoggedIn) {
         currentUser = authState.user;
-      });
+        // Use setState only if mounted to avoid unnecessary rebuilds
+        if (mounted) {
+          setState(() {});
+        }
+      } else if (authState is AuthOtpVerified) {
+        currentUser = authState.user;
+        if (mounted) {
+          setState(() {});
+        }
+      }
+    } catch (e) {
+      print('Error loading user data: $e');
     }
   }
 
@@ -138,8 +166,28 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         body: currentUser == null
-            ? const Center(child: CircularProgressIndicator())
-            : Column(
+            ? const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text('Loading dashboard...'),
+                  ],
+                ),
+              )
+            : isLoadingData
+                ? const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 16),
+                        Text('Loading vehicle data...'),
+                      ],
+                    ),
+                  )
+                : Column(
                 children: [
                   // Dashboard Stats
                   Container(

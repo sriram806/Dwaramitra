@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/core/theme/theme.dart';
-import 'package:frontend/features/auth/cubit/auth_cubit.dart';
-import 'package:frontend/features/auth/pages/signup_page.dart';
-import 'package:frontend/features/auth/pages/otp_verification_page.dart';
+import 'package:frontend/features/auth/di/auth_dependency_injection.dart';
+import 'package:frontend/features/auth/presentation/bloc/auth_cubit.dart';
+import 'package:frontend/features/auth/presentation/pages/signup_page.dart';
+import 'package:frontend/features/auth/presentation/pages/otp_verification_page.dart';
 import 'package:frontend/features/home/cubit/tasks_cubit.dart';
 import 'package:frontend/features/home/pages/home_page.dart';
-import 'package:frontend/features/profile/cubit/profile_cubit.dart';
+import 'package:frontend/features/profile/di/profile_injection.dart';
 import 'package:frontend/features/vehicles/cubit/vehicle_cubit.dart';
 
 void main() {
   runApp(
     MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => AuthCubit()),
+        BlocProvider(create: (_) => AuthDependencyInjection.getAuthCubit()),
         BlocProvider(create: (_) => TasksCubit()),
-        BlocProvider(create: (_) => ProfileCubit()),
+        BlocProvider(create: (_) => ProfileDependencyInjection.getProfileCubit()),
         BlocProvider(create: (_) => VehicleCubit()),
       ],
       child: const MyApp(),

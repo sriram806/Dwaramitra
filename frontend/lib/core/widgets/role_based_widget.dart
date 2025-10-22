@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/core/constants/user_roles.dart';
-import 'package:frontend/features/auth/cubit/auth_cubit.dart';
+import 'package:frontend/features/auth/presentation/bloc/auth_cubit.dart';
 
 class RoleBasedWidget extends StatelessWidget {
   final String requiredPermission;

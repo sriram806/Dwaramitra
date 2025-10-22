@@ -35,6 +35,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       uppercase: true,
       trim: true,
+      sparse: true, 
     },
     department: {
       type: String,
@@ -95,6 +96,7 @@ const userSchema = new mongoose.Schema(
 );
 
 // Create a sparse unique index for universityId to allow multiple null values
+// Sparse index will only include documents where universityId field exists and is not null
 userSchema.index({ universityId: 1 }, { unique: true, sparse: true });
 
 const User = mongoose.model('User', userSchema);

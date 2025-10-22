@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/features/auth/cubit/auth_cubit.dart';
+import 'package:frontend/features/auth/presentation/bloc/auth_cubit.dart';
 
 class LogoutService {
   static void showAdvancedLogoutDialog(BuildContext context) {

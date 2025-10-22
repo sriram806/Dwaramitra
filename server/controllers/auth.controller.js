@@ -9,9 +9,9 @@ export const registration = async (req, res) => {
   let createdUser;
 
   try {
-    const { name, email, password, gender } = req.body;
+    const { name, email, password, universityId, department, designation, phone } = req.body;
 
-    if (!name || !email || !password || !gender) {
+    if (!name || !email || !password) {
       return res.status(400).json({ success: false, message: "All fields are required." });
     }
 
@@ -25,7 +25,30 @@ export const registration = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    createdUser = await User.create({ name, email, password: hashedPassword, gender, otp, otpExpireAt });
+    // Build user data object, only including fields that have values
+    const userData = {
+      name,
+      email,
+      password: hashedPassword,
+      otp,
+      otpExpireAt
+    };
+
+    // Only add optional fields if they are provided and not empty
+    if (universityId && universityId.trim()) {
+      userData.universityId = universityId.trim().toUpperCase();
+    }
+    if (department && department.trim()) {
+      userData.department = department.trim();
+    }
+    if (designation) {
+      userData.designation = designation;
+    }
+    if (phone && phone.trim()) {
+      userData.phone = phone.trim();
+    }
+
+    createdUser = await User.create(userData);
 
     try {
       await sendMail({
