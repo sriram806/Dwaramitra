@@ -21,7 +21,7 @@ abstract class ProfileRemoteDataSource {
     required String currentPassword,
     required String newPassword,
   });
-  Future<void> deleteAccount();
+  Future<void> deleteAccount(String password);
 }
 
 class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
@@ -125,11 +125,11 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   }) async {
     try {
       final headers = await _getAuthHeaders();
-      final response = await client.post(
-        Uri.parse('${Constants.backendUri}/auth/change-password'),
+      final response = await client.put(
+        Uri.parse('${Constants.backendUri}/user/change-password'),
         headers: headers,
         body: jsonEncode({
-          'currentPassword': currentPassword,
+          'oldPassword': currentPassword,
           'newPassword': newPassword,
         }),
       );
@@ -144,12 +144,15 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   }
 
   @override
-  Future<void> deleteAccount() async {
+  Future<void> deleteAccount(String password) async {
     try {
       final headers = await _getAuthHeaders();
       final response = await client.delete(
-        Uri.parse('${Constants.backendUri}/user/profile'),
+        Uri.parse('${Constants.backendUri}/user/delete-account'),
         headers: headers,
+        body: jsonEncode({
+          'password': password,
+        }),
       );
 
       if (response.statusCode != 200) {

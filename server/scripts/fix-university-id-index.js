@@ -115,7 +115,3 @@ if (process.argv[2] === 'cleanup') {
 } else {
   fixUniversityIdIndex();
 }
-
-// Usage:
-// node fix-university-id-index.js          // Just fix the index
-// node fix-university-id-index.js cleanup  // Clean up data and fix index

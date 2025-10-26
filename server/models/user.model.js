@@ -49,7 +49,7 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
       enum: ['user', 'guard', 'security officer', 'admin'],
-      default: 'user',
+      default: 'guard',
     },
     shift: {
       type: String,
@@ -58,10 +58,31 @@ const userSchema = new mongoose.Schema(
       validate: {
         validator: function(value) {
           if (!value) return true;
-          return this.role === 'guard';
+          return this.role === 'guard' || this.role === 'security officer';
         },
-        message: 'Shift can only be assigned to guards'
+        message: 'Shift can only be assigned to guards or security officers'
       }
+    },
+    guardId: {
+      type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
+      uppercase: true
+    },
+    assignedGates: [{
+      type: String,
+      enum: ['GATE 1', 'GATE 2']
+    }],
+    isOnDuty: {
+      type: Boolean,
+      default: false
+    },
+    lastCheckIn: {
+      type: Date
+    },
+    lastCheckOut: {
+      type: Date
     },
     isAccountVerified: {
       type: Boolean,
@@ -95,8 +116,6 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Create a sparse unique index for universityId to allow multiple null values
-// Sparse index will only include documents where universityId field exists and is not null
 userSchema.index({ universityId: 1 }, { unique: true, sparse: true });
 
 const User = mongoose.model('User', userSchema);

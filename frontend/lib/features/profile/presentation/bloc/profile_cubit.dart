@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/models/user_model.dart';
 import '../../domain/entities/profile_entity.dart';
 import '../../domain/repositories/profile_repository.dart';
 
@@ -64,28 +63,7 @@ class ProfileCubit extends Cubit<ProfileState> {
       );
       
       // Convert ProfileEntity back to UserModel for consistency with UI
-      final userModel = UserModel(
-        id: updatedProfile.id,
-        email: updatedProfile.email,
-        name: updatedProfile.name,
-        token: '', // Token will be managed separately
-        isAccountVerified: updatedProfile.isAccountVerified,
-        phone: updatedProfile.phone,
-        gender: updatedProfile.gender,
-        universityId: updatedProfile.universityId,
-        department: updatedProfile.department,
-        designation: updatedProfile.designation,
-        role: updatedProfile.role,
-        shift: updatedProfile.shift,
-        avatar: updatedProfile.avatar != null ? Avatar(
-          url: updatedProfile.avatar!.url,
-          publicId: updatedProfile.avatar!.publicId,
-        ) : null,
-        createdAt: updatedProfile.createdAt,
-        updatedAt: updatedProfile.updatedAt,
-      );
-      
-      emit(ProfileUpdated(userModel));
+      emit(ProfileUpdated(updatedProfile));
     } catch (e) {
       emit(ProfileError('Failed to update profile: $e'));
     }

@@ -5,23 +5,51 @@ import cookieParser from 'cookie-parser';
 import http from 'http';
 import { Server } from 'socket.io';
 import connecttoDatabase from './database/mongodb.js';
-import { CLOUD_API_KEY, CLOUD_NAME, CLOUD_SECRET_KEY, PORT } from './config/env.js';
+import { CLOUD_API_KEY, CLOUD_NAME, CLOUD_SECRET_KEY, PORT, NODE_ENV } from './config/env.js';
 import { v2 as cloudinary } from 'cloudinary';
+import { verifyToken } from './middleware/auth.middleware.js';
+import {
+  apiLimiter,
+  authLimiter,
+  securityHeaders,
+  xssProtection,
+  preventParameterPollution,
+  sanitizeData,
+  preventNoSqlInjection,
+  corsOptions,
+  requestLogger,
+  errorHandler,
+  notFound
+} from './middleware/security.middleware.js';
 
-// Routes
+// Initialize Express app
+const app = express();
+
+// Import routes
 import authRouter from './routes/auth.route.js';
 import userRoute from './routes/user.route.js';
-import vehicleRouter from './routes/vehicle.route.js';
-import vehicleLogRouter from './routes/vehicleLog.route.js';
 import announcementRouter from './routes/announcement.route.js';
-import dashboardRouter from './routes/dashboard.route.js';
-
-const app = express();
+import vehicleLogRouter from './routes/vehicleLog.route.js';
+import vehicleRouter from './routes/vehicle.route.js';
+import analyticsRouter from './routes/analytics.route.js';
 connecttoDatabase();
 
-// Middleware
-app.use(express.json({ limit: "50mb" }));
+// Security Middleware
+app.use(securityHeaders());
+app.use(cors(corsOptions));
+app.use(xssProtection);
+app.use(preventParameterPollution);
+app.use(sanitizeData);
+app.use(preventNoSqlInjection);
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
+
+app.use(requestLogger);
+
+// Rate limiting
+app.use('/api/auth', authLimiter);
+app.use('/api', apiLimiter);
 
 // Cloudinary config
 cloudinary.config({
@@ -39,17 +67,14 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, curl, etc.)
     if (!origin) {
       return callback(null, true);
     }
     
-    // Allow any localhost origin for development
     if (origin.startsWith('http://localhost:') || origin.startsWith('https://localhost:')) {
       return callback(null, true);
     }
     
-    // Allow specific production origins
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
@@ -68,112 +93,70 @@ app.options('*', cors());
 
 // Root Route
 app.get('/', (req, res) => {
-  res.send(`
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Flyobo Travel</title>
-      <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-      <style>
-        body {
-          margin: 0;
-          font-family: 'Poppins', sans-serif;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          height: 100vh;
-          background: linear-gradient(to bottom, #001f3f, #003366);
-          overflow: hidden;
-          color: #fff;
-        }
-        .gradient-overlay {
-          position: absolute;
-          top: -150px;
-          left: -25%;
-          width: 700px;
-          height: 700px;
-          background: radial-gradient(circle at center, rgba(0, 191, 255, 0.5), rgba(0, 123, 255, 0.3), transparent 70%);
-          filter: blur(120px);
-          z-index: 0;
-        }
-        .container {
-          text-align: center;
-          background: rgba(255, 255, 255, 0.05);
-          padding: 40px;
-          border-radius: 15px;
-          box-shadow: 0 4px 20px rgba(0, 191, 255, 0.3);
-          z-index: 1;
-          position: relative;
-        }
-        h1 {
-          font-size: 2.5rem;
-          margin-bottom: 10px;
-          color: #00d4ff;
-        }
-        p {
-          font-size: 1.2rem;
-          margin-top: 0;
-          color: #87cefa;
-        }
-        .icon {
-          font-size: 3rem;
-          margin-bottom: 10px;
-          color: #00d4ff;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="gradient-overlay"></div>
-      <div class="container">
-        <div class="icon">✈️</div>
-        <h1>Welcome to Flyobo Travel</h1>
-        <p>Your journey begins here — explore, travel, and discover with us.</p>
-        <p>The backend is running successfully.</p>
-      </div>
-    </body>
-    </html>
-  `);
+  res.send(`hii`);
 });
 
+// Routes
+app.use('/api/auth', authRouter);
+app.use('/api/user', userRoute);
+app.use('/api/announcements', announcementRouter);
+app.use('/api/vehicle-logs', vehicleLogRouter);
+app.use('/api/vehicle', vehicleRouter);
+app.use('/api/analytics', analyticsRouter);
 
-app.use('/api/v1/auth', authRouter);
-app.use('/api/v1/user', userRoute);
-app.use('/api/v1/vehicles', vehicleRouter);
-app.use('/api/v1/vehicle-logs', vehicleLogRouter);
-app.use('/api/v1/announcements', announcementRouter);
-app.use('/api/v1/dashboard', dashboardRouter);
-
-
-// Create HTTP server & attach Socket.IO
 const server = http.createServer(app);
+
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    origin: NODE_ENV === 'production' 
+      ? ['https://flyobo.com'] 
+      : ['http://localhost:3000', 'http://localhost:5173'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token']
   },
+  transports: ['websocket', 'polling']
 });
 
-// Make io globally available
-app.locals.io = io;
+// Socket.IO authentication middleware
+io.use((socket, next) => {
+  const token = socket.handshake.auth.token || 
+               socket.handshake.headers['x-auth-token'] ||
+               socket.handshake.query.token;
+  
+  if (!token) {
+    return next(new Error('Authentication error: No token provided'));
+  }
 
-// Socket Events
+  try {
+    const decoded = verifyToken(token);
+    socket.user = decoded;
+    next();
+  } catch (error) {
+    return next(new Error('Authentication error: Invalid token'));
+  }
+});
+
 io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
-
+  console.log('New client connected:', socket.user?.userId || 'unknown');
+  
+  if (socket.user?.userId) {
+    socket.join(`user_${socket.user.userId}`);
+  }
+  socket.join('global_updates');
   socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
+    console.log('Client disconnected:', socket.user?.userId || 'unknown');
   });
 });
 
-// Start Server
-server.listen(PORT, () => {
-  try {
-    console.log(`Server running at http://localhost:${PORT}`);
-  } catch (error) {
-    console.error('Error starting server: ', error);
-    process.exit(1);
-  }
+app.set('io', io);
+app.locals.io = io;
+
+export { io };
+
+const port = PORT || 3000;
+server.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+  console.log(`WebSocket server is running on port ${port}`);
+  console.log(`Environment: ${NODE_ENV || 'development'}`);
 });

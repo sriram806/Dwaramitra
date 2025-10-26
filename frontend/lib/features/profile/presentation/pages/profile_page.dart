@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/models/user_model.dart';
+import 'package:frontend/core/theme/app_pallete.dart';
+import 'package:frontend/core/theme/app_spacing.dart';
+import 'package:frontend/core/theme/app_text_styles.dart';
 import '../bloc/profile_cubit.dart';
+import '../../domain/entities/profile_entity.dart';
 import 'edit_profile_page.dart';
 import 'overview_page.dart';
 import 'change_password_page.dart';
@@ -9,8 +14,6 @@ import 'package:frontend/features/support/pages/help_support_page.dart';
 import '../widgets/profile_loading_view.dart';
 import '../widgets/profile_error_view.dart';
 import '../widgets/modern_profile_header.dart';
-import '../widgets/profile_insights_card.dart';
-import '../widgets/profile_quick_actions.dart';
 import '../widgets/profile_action_button_modern.dart';
 import '../widgets/profile_menu_item.dart';
 import '../widgets/profile_page_scaffold.dart';
@@ -29,6 +32,30 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  
+  // Helper function to convert ProfileEntity to UserModel for UI compatibility
+  UserModel _profileEntityToUserModel(ProfileEntity profile) {
+    return UserModel(
+      id: profile.id,
+      email: profile.email,
+      name: profile.name,
+      token: '', // Token managed separately
+      isAccountVerified: profile.isAccountVerified,
+      phone: profile.phone,
+      gender: profile.gender,
+      universityId: profile.universityId,
+      department: profile.department,
+      designation: profile.designation,
+      role: profile.role,
+      shift: profile.shift,
+      avatar: profile.avatar != null ? Avatar(
+        url: profile.avatar!.url,
+        publicId: profile.avatar!.publicId,
+      ) : null,
+      createdAt: profile.createdAt,
+      updatedAt: profile.updatedAt,
+    );
+  }
   @override
   void initState() {
     super.initState();
@@ -71,11 +98,12 @@ class _ProfilePageState extends State<ProfilePage> {
               );
             }
 
-            final user = state is ProfileLoaded ? state.profile : null;
+            final profile = state is ProfileLoaded ? state.profile : 
+                         state is ProfileUpdated ? state.profile : null;
 
-            return user == null
+            return profile == null
                 ? const ProfileLoadingView()
-                : _buildModernProfileContent(user);
+                : _buildModernProfileContent(_profileEntityToUserModel(profile));
           },
         ),
       ),
@@ -84,7 +112,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildModernProfileContent(user) {
     return SingleChildScrollView(
+      padding: const EdgeInsets.only(bottom: AppSpacing.xl),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Modern Profile Header Component
           ModernProfileHeader(
@@ -95,47 +125,115 @@ class _ProfilePageState extends State<ProfilePage> {
             actionButtons: [
               ModernActionButton(
                 icon: Icons.edit,
-                label: 'EDIT PROFILE',
+                label: 'Edit Profile',
                 onTap: () => _navigateToEditProfile(user),
-                backgroundColor: Colors.orange,
+                backgroundColor: AppPallete.primaryColor,
               ),
             ],
           ),
           
-          // Profile Insights Card
-          ProfileInsightsCard(user: user),
+          // Profile Actions Section
+          _buildProfileActionsSection(user),
           
-          // Quick actions for profile completion
-          ProfileQuickActions(
-            user: user,
-            onEditProfile: () => _navigateToEditProfile(user),
-            onChangePassword: () => _navigateToChangePassword(),
-            onViewOverview: () => _navigateToOverview(user),
+          // Settings Section
+          _buildSettingsSection(),
+          
+          // Support Section
+          _buildSupportSection(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileActionsSection(user) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: AppSpacing.xs, bottom: AppSpacing.sm),
+            child: Text(
+              'Profile',
+              style: AppTextStyles.subtitle1.copyWith(
+                color: AppPallete.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
           
-          // Menu Items using reusable components
           ProfileMenuItem(
-            icon: Icons.settings,
-            title: 'Settings',
-            subtitle: 'Manage your preferences',
-            onTap: () => _navigateToSettings(),
-            iconColor: Colors.blue,
-          ),
-          
-          ProfileMenuItem(
-            icon: Icons.lock,
-            title: 'Change Password',
-            subtitle: 'Update your security',
-            onTap: () => _navigateToChangePassword(),
-            iconColor: Colors.orange,
-          ),
-          
-          ProfileMenuItem(
-            icon: Icons.visibility,
+            icon: Icons.visibility_outlined,
             title: 'Overview',
             subtitle: 'View your information',
             onTap: () => _navigateToOverview(user),
-            iconColor: Colors.green,
+            iconColor: AppPallete.secondaryColor,
+          ),
+          
+          ProfileMenuItem(
+            icon: Icons.lock_outline,
+            title: 'Change Password',
+            subtitle: 'Update your security',
+            onTap: () => _navigateToChangePassword(),
+            iconColor: AppPallete.warningColor,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingsSection() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: AppSpacing.xs, bottom: AppSpacing.sm),
+            child: Text(
+              'Settings',
+              style: AppTextStyles.subtitle1.copyWith(
+                color: AppPallete.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          
+          ProfileMenuItem(
+            icon: Icons.settings_outlined,
+            title: 'Preferences',
+            subtitle: 'Manage your settings',
+            onTap: () => _navigateToSettings(),
+            iconColor: AppPallete.greyColor,
+          ),
+          
+          ProfileMenuItem(
+            icon: Icons.logout,
+            title: 'Sign Out',
+            subtitle: 'Log out of your account',
+            onTap: () => LogoutService.showAdvancedLogoutDialog(context),
+            iconColor: AppPallete.errorColor,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSupportSection() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: AppSpacing.xs, bottom: AppSpacing.sm),
+            child: Text(
+              'Support',
+              style: AppTextStyles.subtitle1.copyWith(
+                color: AppPallete.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
           
           ProfileMenuItem(
@@ -143,18 +241,8 @@ class _ProfilePageState extends State<ProfilePage> {
             title: 'Help & Support',
             subtitle: 'Get assistance',
             onTap: () => Navigator.push(context, HelpSupportPage.route()),
-            iconColor: Colors.purple,
+            iconColor: AppPallete.accentColor,
           ),
-          
-          ProfileMenuItem(
-            icon: Icons.logout,
-            title: 'Log out',
-            subtitle: 'Sign out of your account',
-            onTap: () => LogoutService.showAdvancedLogoutDialog(context),
-            iconColor: Colors.red,
-          ),
-          
-          const SizedBox(height: 40),
         ],
       ),
     );

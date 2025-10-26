@@ -13,6 +13,11 @@ class UserModel {
   final String designation;
   final String role;
   final String? shift; // For guards only: 'Day Shift' or 'Night Shift'
+  final String? guardId; // For guards only
+  final List<String>? assignedGates; // For guards: 'GATE 1', 'GATE 2'
+  final bool? isOnDuty; // For guards duty status
+  final DateTime? lastCheckIn; // For guards check-in time
+  final DateTime? lastCheckOut; // For guards check-out time
   final Avatar? avatar;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -30,6 +35,11 @@ class UserModel {
     required this.designation,
     required this.role,
     this.shift,
+    this.guardId,
+    this.assignedGates,
+    this.isOnDuty,
+    this.lastCheckIn,
+    this.lastCheckOut,
     this.avatar,
     required this.createdAt,
     required this.updatedAt,
@@ -48,6 +58,11 @@ class UserModel {
     String? designation,
     String? role,
     String? shift,
+    String? guardId,
+    List<String>? assignedGates,
+    bool? isOnDuty,
+    DateTime? lastCheckIn,
+    DateTime? lastCheckOut,
     Avatar? avatar,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -65,6 +80,11 @@ class UserModel {
       designation: designation ?? this.designation,
       role: role ?? this.role,
       shift: shift ?? this.shift,
+      guardId: guardId ?? this.guardId,
+      assignedGates: assignedGates ?? this.assignedGates,
+      isOnDuty: isOnDuty ?? this.isOnDuty,
+      lastCheckIn: lastCheckIn ?? this.lastCheckIn,
+      lastCheckOut: lastCheckOut ?? this.lastCheckOut,
       avatar: avatar ?? this.avatar,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -85,6 +105,11 @@ class UserModel {
       'designation': designation,
       'role': role,
       'shift': shift,
+      'guardId': guardId,
+      'assignedGates': assignedGates,
+      'isOnDuty': isOnDuty,
+      'lastCheckIn': lastCheckIn?.toIso8601String(),
+      'lastCheckOut': lastCheckOut?.toIso8601String(),
       'avatar': avatar?.toMap(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
@@ -105,6 +130,11 @@ class UserModel {
       designation: map['designation'] ?? 'Student',
       role: map['role'] ?? 'user',
       shift: map['shift'],
+      guardId: map['guardId'],
+      assignedGates: map['assignedGates'] != null ? List<String>.from(map['assignedGates']) : null,
+      isOnDuty: map['isOnDuty'],
+      lastCheckIn: map['lastCheckIn'] != null ? DateTime.parse(map['lastCheckIn']) : null,
+      lastCheckOut: map['lastCheckOut'] != null ? DateTime.parse(map['lastCheckOut']) : null,
       avatar: map['avatar'] != null ? Avatar.fromMap(map['avatar']) : null,
       createdAt: DateTime.parse(map['createdAt'] ?? DateTime.now().toIso8601String()),
       updatedAt: DateTime.parse(map['updatedAt'] ?? DateTime.now().toIso8601String()),
@@ -118,7 +148,17 @@ class UserModel {
 
   @override
   String toString() {
-    return 'UserModel(id: $id, email: $email, name: $name, token: $token, isAccountVerified: $isAccountVerified, phone: $phone, gender: $gender, universityId: $universityId, department: $department, designation: $designation, role: $role, shift: $shift, avatar: $avatar, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'UserModel(id: $id, email: $email, name: $name, token: $token, isAccountVerified: $isAccountVerified, phone: $phone, gender: $gender, universityId: $universityId, department: $department, designation: $designation, role: $role, shift: $shift, guardId: $guardId, assignedGates: $assignedGates, isOnDuty: $isOnDuty, lastCheckIn: $lastCheckIn, lastCheckOut: $lastCheckOut, avatar: $avatar, createdAt: $createdAt, updatedAt: $updatedAt)';
+  }
+
+  bool _listEquals(List<String>? a, List<String>? b) {
+    if (a == null && b == null) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
   }
 
   @override
@@ -137,6 +177,11 @@ class UserModel {
         other.designation == designation &&
         other.role == role &&
         other.shift == shift &&
+        other.guardId == guardId &&
+        _listEquals(other.assignedGates, assignedGates) &&
+        other.isOnDuty == isOnDuty &&
+        other.lastCheckIn == lastCheckIn &&
+        other.lastCheckOut == lastCheckOut &&
         other.avatar == avatar &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt;
@@ -156,6 +201,11 @@ class UserModel {
         designation.hashCode ^
         role.hashCode ^
         shift.hashCode ^
+        guardId.hashCode ^
+        (assignedGates?.fold<int>(0, (prev, element) => prev ^ element.hashCode) ?? 0) ^
+        isOnDuty.hashCode ^
+        lastCheckIn.hashCode ^
+        lastCheckOut.hashCode ^
         avatar.hashCode ^
         createdAt.hashCode ^
         updatedAt.hashCode;

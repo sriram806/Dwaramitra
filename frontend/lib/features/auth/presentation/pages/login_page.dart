@@ -9,7 +9,7 @@ import 'package:frontend/features/auth/presentation/widgets/auth_card.dart';
 import 'package:frontend/features/auth/presentation/widgets/auth_field.dart';
 import 'package:frontend/features/auth/presentation/widgets/auth_text_button.dart';
 import 'package:frontend/features/auth/presentation/widgets/auth_navigation_text.dart';
-import 'package:frontend/features/home/pages/home_page.dart';
+import 'package:frontend/features/home/presentation/pages/home_page.dart';
 
 class LoginPage extends StatefulWidget {
   static MaterialPageRoute route() => MaterialPageRoute(

@@ -12,23 +12,23 @@ final class ProfileLoaded extends ProfileState {
 }
 
 final class ProfileRefreshing extends ProfileState {
-  final UserModel user;
-  ProfileRefreshing(this.user);
+  final ProfileEntity profile;
+  ProfileRefreshing(this.profile);
 }
 
 final class ProfileUpdating extends ProfileState {
-  final UserModel user;
-  ProfileUpdating(this.user);
+  final ProfileEntity profile;
+  ProfileUpdating(this.profile);
 }
 
 final class ProfileUpdated extends ProfileState {
-  final UserModel user;
-  ProfileUpdated(this.user);
+  final ProfileEntity profile;
+  ProfileUpdated(this.profile);
 }
 
 final class ProfilePictureUpdated extends ProfileState {
-  final UserModel user;
-  ProfilePictureUpdated(this.user);
+  final ProfileEntity profile;
+  ProfilePictureUpdated(this.profile);
 }
 
 final class ProfilePasswordChanging extends ProfileState {}
@@ -40,13 +40,13 @@ final class ProfileDeleting extends ProfileState {}
 final class ProfileDeleted extends ProfileState {}
 
 final class ProfileSyncing extends ProfileState {
-  final UserModel user;
-  ProfileSyncing(this.user);
+  final ProfileEntity profile;
+  ProfileSyncing(this.profile);
 }
 
 final class ProfileSynced extends ProfileState {
-  final UserModel user;
-  ProfileSynced(this.user);
+  final ProfileEntity profile;
+  ProfileSynced(this.profile);
 }
 
 final class ProfileError extends ProfileState {

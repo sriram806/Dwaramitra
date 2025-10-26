@@ -1,10 +1,6 @@
-// Simple MongoDB index fix script
-// This script will connect to MongoDB and fix the universityId index issue
-
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
-// Load environment variables
 dotenv.config();
 
 async function fixIndex() {
@@ -40,7 +36,6 @@ async function fixIndex() {
     );
     console.log('✅ Created new sparse unique index for universityId');
     
-    // Verify the fix by checking indexes again
     const newIndexes = await collection.indexes();
     const universityIdIndex = newIndexes.find(idx => idx.key.universityId);
     

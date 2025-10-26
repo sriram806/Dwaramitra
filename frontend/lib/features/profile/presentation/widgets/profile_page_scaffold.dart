@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/core/theme/app_pallete.dart';
+import 'package:frontend/core/theme/app_text_styles.dart';
 
 class ProfilePageScaffold extends StatelessWidget {
   final String title;
@@ -19,26 +21,33 @@ class ProfilePageScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppPallete.backgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppPallete.cardBackground,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: showBackButton
             ? IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.black),
+                icon: const Icon(Icons.arrow_back, color: AppPallete.textPrimary),
                 onPressed: onBackPressed ?? () => Navigator.pop(context),
               )
             : null,
         title: Text(
           title,
-          style: const TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
+          style: AppTextStyles.heading3.copyWith(
+            color: AppPallete.textPrimary,
           ),
         ),
         centerTitle: true,
         actions: actions,
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(
+            height: 1,
+            thickness: 1,
+            color: AppPallete.borderColor,
+          ),
+        ),
       ),
       body: body,
     );

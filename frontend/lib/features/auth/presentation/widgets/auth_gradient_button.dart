@@ -18,7 +18,6 @@ class AuthGradientButton extends StatelessWidget {
           colors: [
             AppPallete.gradient1,
             AppPallete.gradient2,
-            // AppPallete.gradient3,
           ],
           begin: Alignment.bottomLeft,
           end: Alignment.topRight,

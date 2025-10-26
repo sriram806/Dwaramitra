@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/core/theme/app_pallete.dart';
+import 'package:frontend/core/theme/app_spacing.dart';
+import 'package:frontend/core/theme/app_text_styles.dart';
 import '../bloc/profile_cubit.dart';
+import '../widgets/profile_page_scaffold.dart';
+import '../widgets/profile_form_field.dart';
 import 'package:frontend/models/user_model.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:frontend/core/widgets/custom_toast.dart';
@@ -58,33 +63,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        title: const Text(
-          'Edit Profile',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: const Color(0xFF4285F4),
-        iconTheme: const IconThemeData(color: Colors.white),
-        elevation: 0,
-        actions: [
-          TextButton(
-            onPressed: isLoading ? null : _saveProfile,
-            child: Text(
-              'Save',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+    return ProfilePageScaffold(
+      title: 'Edit Profile',
+      actions: [
+        TextButton(
+          onPressed: isLoading ? null : _saveProfile,
+          child: Text(
+            'Save',
+            style: AppTextStyles.button.copyWith(
+              color: AppPallete.primaryColor,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
       body: BlocListener<ProfileCubit, ProfileState>(
         listener: (context, state) {
           if (state is ProfileUpdated) {
@@ -103,44 +94,44 @@ class _EditProfilePageState extends State<EditProfilePage> {
           }
         },
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: AppSpacing.paddingLG,
           child: Form(
             key: formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 20),
+                const SizedBox(height: AppSpacing.md),
                 
                 // Profile Avatar Section
                 _buildProfileAvatarSection(),
                 
-                const SizedBox(height: 32),
+                const SizedBox(height: AppSpacing.xl),
                 
                 // Personal Information Section
                 _buildSectionHeader('Personal Information', Icons.person),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.md),
                 _buildPersonalInfoFields(),
                 
-                const SizedBox(height: 32),
+                const SizedBox(height: AppSpacing.xl),
                 
                 // Contact Information Section
                 _buildSectionHeader('Contact Information', Icons.contact_phone),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.md),
                 _buildContactInfoFields(),
                 
-                const SizedBox(height: 32),
+                const SizedBox(height: AppSpacing.xl),
                 
                 // University Information Section
                 _buildSectionHeader('University Information', Icons.school),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.md),
                 _buildUniversityInfoFields(),
                 
-                const SizedBox(height: 40),
+                const SizedBox(height: AppSpacing.xxl),
                 
                 // Save Button
                 _buildSaveButton(),
                 
-                const SizedBox(height: 20),
+                const SizedBox(height: AppSpacing.lg),
               ],
             ),
           ),
@@ -364,10 +355,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Widget _buildPersonalInfoFields() {
     return Column(
       children: [
-        _buildModernTextField(
+        ProfileFormField(
+          label: 'Full Name',
           controller: nameController,
-          labelText: 'Full Name',
-          icon: Icons.person_outline,
+          prefixIcon: const Icon(Icons.person_outline),
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
               return 'Name is required';
@@ -375,13 +366,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
             return null;
           },
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.md),
         _buildGenderDropdown(),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.md),
         _buildDesignationDropdown(),
         // Show shift field for guards or if user can edit shifts
         if (_shouldShowShiftField()) ...[
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.md),
           _buildShiftDropdown(),
         ],
       ],
@@ -391,11 +382,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Widget _buildContactInfoFields() {
     return Column(
       children: [
-        _buildModernTextField(
+        ProfileFormField(
+          label: 'Email Address',
           controller: emailController,
-          labelText: 'Email Address',
-          icon: Icons.email_outlined,
           keyboardType: TextInputType.emailAddress,
+          prefixIcon: const Icon(Icons.email_outlined),
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
               return 'Email is required';
@@ -406,12 +397,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
             return null;
           },
         ),
-        const SizedBox(height: 16),
-        _buildModernTextField(
+        const SizedBox(height: AppSpacing.md),
+        ProfileFormField(
+          label: 'Phone Number',
           controller: phoneController,
-          labelText: 'Phone Number',
-          icon: Icons.phone_outlined,
           keyboardType: TextInputType.phone,
+          prefixIcon: const Icon(Icons.phone_outlined),
           validator: (value) {
             if (value != null && value.isNotEmpty && value.length < 10) {
               return 'Please enter a valid phone number';
@@ -426,84 +417,25 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Widget _buildUniversityInfoFields() {
     return Column(
       children: [
-        _buildModernTextField(
+        ProfileFormField(
+          label: 'University ID',
           controller: universityIdController,
-          labelText: 'University ID',
-          icon: Icons.badge_outlined,
+          prefixIcon: const Icon(Icons.badge_outlined),
         ),
-        const SizedBox(height: 16),
-        _buildModernTextField(
+        const SizedBox(height: AppSpacing.md),
+        ProfileFormField(
+          label: 'Department',
           controller: departmentController,
-          labelText: 'Department',
-          icon: Icons.business_outlined,
+          prefixIcon: const Icon(Icons.business_outlined),
         ),
       ],
     );
   }
 
-  Widget _buildModernTextField({
-    required TextEditingController controller,
-    required String labelText,
-    required IconData icon,
-    TextInputType keyboardType = TextInputType.text,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      validator: validator,
-      decoration: InputDecoration(
-        labelText: labelText,
-        prefixIcon: Icon(icon, color: Theme.of(context).primaryColor.withOpacity(0.7)),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 2),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.red),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.red, width: 2),
-        ),
-        filled: true,
-        fillColor: Colors.grey.shade50,
-        labelStyle: TextStyle(color: Colors.grey.shade700),
-      ),
-    );
-  }
-
   Widget _buildGenderDropdown() {
-    return DropdownButtonFormField<String>(
+    return ProfileDropdownField<String>(
+      label: 'Gender',
       value: selectedGender,
-      decoration: InputDecoration(
-        labelText: 'Gender',
-        prefixIcon: Icon(Icons.wc_outlined, color: Theme.of(context).primaryColor.withOpacity(0.7)),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 2),
-        ),
-        filled: true,
-        fillColor: Colors.grey.shade50,
-        labelStyle: TextStyle(color: Colors.grey.shade700),
-      ),
       items: ['Male', 'Female'].map((String value) {
         return DropdownMenuItem<String>(
           value: value,

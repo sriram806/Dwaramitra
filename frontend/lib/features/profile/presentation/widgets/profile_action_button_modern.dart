@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/core/theme/app_pallete.dart';
+import 'package:frontend/core/theme/app_spacing.dart';
+import 'package:frontend/core/theme/app_text_styles.dart';
 
 class ModernActionButton extends StatelessWidget {
   final IconData icon;
@@ -20,36 +23,46 @@ class ModernActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = backgroundColor ?? Colors.orange;
-    final txtColor = textColor ?? Colors.white;
+    final bgColor = backgroundColor ?? AppPallete.primaryColor;
+    final txtColor = textColor ?? AppPallete.whiteColor;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        decoration: BoxDecoration(
-          color: isOutlined ? Colors.transparent : bgColor,
-          border: isOutlined ? Border.all(color: bgColor) : null,
-          borderRadius: BorderRadius.circular(25),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: isOutlined ? bgColor : txtColor,
-              size: 18,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: AppSpacing.radiusMD,
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.sm,
+          ),
+          decoration: BoxDecoration(
+            color: isOutlined ? Colors.transparent : bgColor,
+            border: Border.all(
+              color: isOutlined ? bgColor : Colors.transparent,
+              width: 1.5,
             ),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: TextStyle(
+            borderRadius: AppSpacing.radiusMD,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
                 color: isOutlined ? bgColor : txtColor,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
+                size: 16,
               ),
-            ),
-          ],
+              const SizedBox(width: AppSpacing.xs),
+              Text(
+                label,
+                style: AppTextStyles.button.copyWith(
+                  color: isOutlined ? bgColor : txtColor,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

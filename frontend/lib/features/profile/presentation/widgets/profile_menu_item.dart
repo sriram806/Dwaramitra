@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/core/theme/app_pallete.dart';
+import 'package:frontend/core/theme/app_spacing.dart';
+import 'package:frontend/core/theme/app_text_styles.dart';
 
 class ProfileMenuItem extends StatelessWidget {
   final IconData icon;
@@ -23,58 +26,81 @@ class ProfileMenuItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.xs,
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        leading: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: (iconColor ?? Colors.blue).withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(
-            icon,
-            color: iconColor ?? Colors.blue,
-            size: 20,
-          ),
+      decoration: BoxDecoration(
+        color: AppPallete.cardBackground,
+        borderRadius: AppSpacing.radiusMD,
+        border: Border.all(
+          color: AppPallete.borderColor,
+          width: 1,
         ),
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
-        ),
-        subtitle: subtitle != null
-            ? Text(
-                subtitle!,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade600,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: AppSpacing.radiusMD,
+          child: Padding(
+            padding: AppSpacing.paddingMD,
+            child: Row(
+              children: [
+                // Icon Container
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: (iconColor ?? AppPallete.primaryColor).withOpacity(0.1),
+                    borderRadius: AppSpacing.radiusSM,
+                  ),
+                  child: Icon(
+                    icon,
+                    color: iconColor ?? AppPallete.primaryColor,
+                    size: 20,
+                  ),
                 ),
-              )
-            : null,
-        trailing: trailing ??
-            (showArrow
-                ? Icon(
-                    Icons.arrow_forward_ios,
-                    size: 16,
-                    color: Colors.grey.shade400,
-                  )
-                : null),
-        onTap: onTap,
+                
+                const SizedBox(width: AppSpacing.md),
+                
+                // Content
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: AppTextStyles.subtitle2.copyWith(
+                          color: AppPallete.textPrimary,
+                        ),
+                      ),
+                      if (subtitle != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          subtitle!,
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppPallete.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                
+                // Trailing
+                if (trailing != null)
+                  trailing!
+                else if (showArrow)
+                  Icon(
+                    Icons.chevron_right,
+                    color: AppPallete.textTertiary,
+                    size: 20,
+                  ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -169,7 +169,7 @@ export const login = async (req, res) => {
     user.password = undefined;
     createSendToken(user, 200, res, "Login successful");
   } catch (error) {
-    return res.status(500).json({ success: false, message: "Error in login" });
+    return res.status(500).json({ success: false, message: "Error in login", error });
   }
 };
 

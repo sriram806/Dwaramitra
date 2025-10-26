@@ -17,7 +17,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
   Future<ProfileEntity> getProfile() async {
     try {
       // Try to get from remote first
-      final profile = await remoteDataSource.getProfile('current_user');
+      final profile = await remoteDataSource.getProfile();
       await localDataSource.cacheProfile(profile);
       return _mapUserModelToEntity(profile);
     } catch (e) {
@@ -43,32 +43,17 @@ class ProfileRepositoryImpl implements ProfileRepository {
     Map<String, String>? avatar,
   }) async {
     try {
-      // Get current profile
-      final currentProfile = await localDataSource.getCachedProfile();
-      if (currentProfile == null) {
-        throw Exception('No profile found to update');
-      }
-
-      // Create updated profile
-      final updatedProfile = UserModel(
-        id: currentProfile.id,
-        name: name ?? currentProfile.name,
-        email: email ?? currentProfile.email,
-        phone: phone ?? currentProfile.phone,
-        gender: gender ?? currentProfile.gender,
-        universityId: universityId ?? currentProfile.universityId,
-        department: department ?? currentProfile.department,
-        designation: designation ?? currentProfile.designation,
-        shift: shift ?? currentProfile.shift,
-        avatar: currentProfile.avatar,
-        token: currentProfile.token,
-        isAccountVerified: currentProfile.isAccountVerified,
-        role: currentProfile.role,
-        createdAt: currentProfile.createdAt,
-        updatedAt: DateTime.now(),
+      final result = await remoteDataSource.updateProfile(
+        name: name,
+        email: email,
+        phone: phone,
+        gender: gender,
+        universityId: universityId,
+        department: department,
+        designation: designation,
+        shift: shift,
+        avatar: avatar,
       );
-
-      final result = await remoteDataSource.updateProfile(updatedProfile);
       await localDataSource.cacheProfile(result);
       return _mapUserModelToEntity(result);
     } catch (e) {
@@ -94,7 +79,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<void> deleteAccount(String password) async {
     try {
-      await remoteDataSource.deleteAccount('current_user');
+      await remoteDataSource.deleteAccount(password);
       await localDataSource.clearLocalData();
     } catch (e) {
       throw Exception('Failed to delete account: $e');
@@ -104,7 +89,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<void> refreshProfile() async {
     try {
-      final profile = await remoteDataSource.getProfile('current_user');
+      final profile = await remoteDataSource.getProfile();
       await localDataSource.cacheProfile(profile);
     } catch (e) {
       throw Exception('Failed to refresh profile: $e');

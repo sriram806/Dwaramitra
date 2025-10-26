@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/core/theme/app_pallete.dart';
+import 'package:frontend/core/theme/app_spacing.dart';
+import 'package:frontend/core/theme/app_text_styles.dart';
 
 class ModernProfileHeader extends StatelessWidget {
   final String? avatarUrl;
@@ -24,111 +27,170 @@ class ModernProfileHeader extends StatelessWidget {
     
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.all(20),
-      padding: const EdgeInsets.all(24),
+      margin: AppSpacing.paddingLG.copyWith(bottom: AppSpacing.md),
+      padding: AppSpacing.paddingXL,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: AppPallete.cardBackground,
+        borderRadius: AppSpacing.radiusLG,
+        border: Border.all(
+          color: AppPallete.borderColor,
+          width: 1,
+        ),
       ),
       child: Column(
         children: [
-          // Avatar with status indicator
-          Stack(
-            children: [
-              GestureDetector(
-                onTap: onAvatarTap,
-                child: Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.grey.shade200,
-                      width: 3,
-                    ),
-                  ),
-                  child: ClipOval(
-                    child: avatarUrl?.isNotEmpty == true
-                        ? Image.network(
-                            avatarUrl!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => _buildDefaultAvatar(),
-                          )
-                        : _buildDefaultAvatar(),
-                  ),
-                ),
-              ),
-              // Profile completion indicator
-              if (completionPercentage < 100)
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: _getCompletionColor(completionPercentage),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
-                    ),
-                    child: Text(
-                      '${completionPercentage.toInt()}%',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
+          // Avatar Section
+          _buildAvatar(completionPercentage),
           
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           
-          // User Info
-          Text(
-            name.toUpperCase(),
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-              letterSpacing: 1.0,
-            ),
-          ),
+          // User Info Section
+          _buildUserInfo(),
           
-          const SizedBox(height: 6),
-          
-          Text(
-            email,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade600,
-            ),
-          ),
-          
-          // Profile completion bar (only show if not 100%)
+          // Profile completion indicator (only show if not 100%)
           if (completionPercentage < 100) ...[
-            const SizedBox(height: 16),
-            _buildCompletionBar(completionPercentage),
+            const SizedBox(height: AppSpacing.lg),
+            _buildCompletionIndicator(completionPercentage),
           ],
           
           // Action Buttons
-          if (actionButtons != null) ...[
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: actionButtons!,
-            ),
+          if (actionButtons != null && actionButtons!.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.lg),
+            _buildActionButtons(),
           ],
         ],
       ),
+    );
+  }
+
+  Widget _buildAvatar(double completionPercentage) {
+    return Stack(
+      children: [
+        Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: AppPallete.borderColor,
+              width: 2,
+            ),
+          ),
+          child: ClipOval(
+            child: avatarUrl?.isNotEmpty == true
+                ? Image.network(
+                    avatarUrl!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => _buildDefaultAvatar(),
+                  )
+                : _buildDefaultAvatar(),
+          ),
+        ),
+        
+        // Completion indicator badge
+        if (completionPercentage < 100)
+          Positioned(
+            bottom: -2,
+            right: -2,
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.xs,
+                vertical: 2,
+              ),
+              decoration: BoxDecoration(
+                color: _getCompletionColor(completionPercentage),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppPallete.whiteColor, width: 2),
+              ),
+              child: Text(
+                '${completionPercentage.toInt()}%',
+                style: AppTextStyles.caption.copyWith(
+                  color: AppPallete.whiteColor,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildUserInfo() {
+    return Column(
+      children: [
+        Text(
+          name,
+          style: AppTextStyles.heading3.copyWith(
+            color: AppPallete.textPrimary,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          email,
+          style: AppTextStyles.body2.copyWith(
+            color: AppPallete.textSecondary,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCompletionIndicator(double percentage) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Icon(
+              Icons.account_circle_outlined,
+              size: 16,
+              color: AppPallete.textTertiary,
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            Text(
+              'Profile completion',
+              style: AppTextStyles.caption.copyWith(
+                color: AppPallete.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const Spacer(),
+            Text(
+              '${percentage.toInt()}%',
+              style: AppTextStyles.caption.copyWith(
+                color: _getCompletionColor(percentage),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        LinearProgressIndicator(
+          value: percentage / 100,
+          backgroundColor: AppPallete.surfaceColor,
+          valueColor: AlwaysStoppedAnimation<Color>(
+            _getCompletionColor(percentage),
+          ),
+          minHeight: 4,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return Row(
+      children: actionButtons!.map((button) {
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: actionButtons!.length > 1 ? AppSpacing.xs : 0,
+            ),
+            child: button,
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -136,65 +198,23 @@ class ModernProfileHeader extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.blue.shade400, Colors.purple.shade400],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppPallete.primaryColor,
+            AppPallete.primaryDark,
+          ],
         ),
       ),
       child: Center(
         child: Text(
           name.isNotEmpty ? name[0].toUpperCase() : 'U',
-          style: const TextStyle(
-            fontSize: 36,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+          style: AppTextStyles.heading2.copyWith(
+            color: AppPallete.whiteColor,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildCompletionBar(double percentage) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Profile Completion',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey.shade600,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            Text(
-              '${percentage.toInt()}%',
-              style: TextStyle(
-                fontSize: 12,
-                color: _getCompletionColor(percentage),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Container(
-          height: 6,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade200,
-            borderRadius: BorderRadius.circular(3),
-          ),
-          child: FractionallySizedBox(
-            alignment: Alignment.centerLeft,
-            widthFactor: percentage / 100,
-            child: Container(
-              decoration: BoxDecoration(
-                color: _getCompletionColor(percentage),
-                borderRadius: BorderRadius.circular(3),
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -220,8 +240,8 @@ class ModernProfileHeader extends StatelessWidget {
   }
 
   Color _getCompletionColor(double percentage) {
-    if (percentage >= 80) return Colors.green;
-    if (percentage >= 60) return Colors.orange;
-    return Colors.red;
+    if (percentage >= 80) return AppPallete.successColor;
+    if (percentage >= 60) return AppPallete.warningColor;
+    return AppPallete.errorColor;
   }
 }

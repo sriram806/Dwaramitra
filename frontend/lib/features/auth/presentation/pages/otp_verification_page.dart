@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/core/widgets/widgets.dart';
 import 'package:frontend/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:frontend/features/auth/presentation/widgets/auth_text_button.dart';
-import 'package:frontend/features/home/pages/home_page.dart';
+import 'package:frontend/features/home/presentation/pages/home_page.dart';
 import 'package:frontend/models/user_model.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
