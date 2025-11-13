@@ -293,10 +293,9 @@ class OverviewPage extends StatelessWidget {
     }
   }
 
-  String _formatDate(String? dateString) {
-    if (dateString == null) return 'Unknown';
+  String _formatDate(DateTime? date) {
+    if (date == null) return 'Unknown';
     try {
-      final date = DateTime.parse(dateString);
       return DateFormat('MMM dd, yyyy').format(date);
     } catch (e) {
       return 'Invalid date';

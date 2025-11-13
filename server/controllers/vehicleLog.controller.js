@@ -133,8 +133,8 @@ export const logVehicleEntry = async (req, res, next) => {
 export const logVehicleExit = async (req, res, next) => {
   try {
     const { logId } = req.params;
-    const { exitGate } = req.body;
-    const exitBy = req.user.id;
+    const { exitGate, notes } = req.body;
+    const exitBy = req.user._id; // Use _id instead of id
     const exitGuard = {
       id: req.user._id,
       name: req.user.name
@@ -155,6 +155,7 @@ export const logVehicleExit = async (req, res, next) => {
     logEntry.exitGate = exitGate;
     logEntry.exitGuard = exitGuard;
     logEntry.status = 'exited';
+    if (notes) logEntry.notes = notes;
 
     await logEntry.save();
 

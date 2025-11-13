@@ -47,9 +47,9 @@ app.use(cookieParser());
 
 app.use(requestLogger);
 
-// Rate limiting
+{/*// Rate limiting
 app.use('/api/auth', authLimiter);
-app.use('/api', apiLimiter);
+app.use('/api', apiLimiter);*/}
 
 // Cloudinary config
 cloudinary.config({
@@ -138,7 +138,6 @@ io.use((socket, next) => {
 });
 
 io.on('connection', (socket) => {
-  console.log('New client connected:', socket.user?.userId || 'unknown');
   
   if (socket.user?.userId) {
     socket.join(`user_${socket.user.userId}`);

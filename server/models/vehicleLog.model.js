@@ -55,6 +55,10 @@ const vehicleLogSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  exitBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
   entryGuard: {
     id: {
       type: mongoose.Schema.Types.ObjectId,
@@ -140,6 +144,7 @@ vehicleLogSchema.index({ vehicleNumber: 1, status: 1 });
 vehicleLogSchema.index({ entryGate: 1, status: 1 });
 vehicleLogSchema.index({ entryTime: -1 });
 vehicleLogSchema.index({ 'entryGuard.id': 1, status: 1 });
+vehicleLogSchema.index({ 'exitBy': 1, status: 1 });
 vehicleLogSchema.index({ ownerType: 1, status: 1 });
 
 vehicleLogSchema.virtual('duration').get(function() {

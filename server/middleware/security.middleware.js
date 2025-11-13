@@ -23,7 +23,6 @@ const createRateLimiter = (windowMs, max, message) => {
 export const apiLimiter = createRateLimiter(15 * 60 * 1000, 100, 'Too many requests from this IP, please try again after 15 minutes');
 export const authLimiter = createRateLimiter(60 * 60 * 1000, 5, 'Too many login attempts, please try again after an hour');
 
-// Set security HTTP headers
 export const securityHeaders = () => {
   return helmet({
     contentSecurityPolicy: {
@@ -50,10 +49,8 @@ export const securityHeaders = () => {
   });
 };
 
-// Data sanitization against XSS
 export const xssProtection = xss();
 
-// Prevent parameter pollution
 export const preventParameterPollution = hpp({
   whitelist: [
     'duration',
@@ -97,7 +94,6 @@ export const preventNoSqlInjection = (req, res, next) => {
     return next(new ErrorHandler('Malicious input detected', 400));
   }
 
-  // Remove any $ or . characters from request body to prevent NoSQL injection
   if (req.body) {
     const cleanBody = JSON.parse(JSON.stringify(req.body).replace(/\$/g, '').replace(/\./g, ''));
     req.body = cleanBody;

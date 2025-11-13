@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/core/services/api_service.dart';
 import 'package:frontend/core/theme/app_pallete.dart';
 import 'package:frontend/core/theme/app_spacing.dart';
 import 'package:frontend/core/theme/app_text_styles.dart';
@@ -24,6 +25,10 @@ class _GuardManagementPageState extends State<GuardManagementPage>
   String selectedShift = 'all';
   String selectedGate = 'all';
   String selectedStatus = 'all';
+  int currentPage = 1;
+  int totalPages = 1;
+  bool hasNextPage = false;
+  bool hasPrevPage = false;
 
   final List<String> shifts = ['all', 'Day Shift', 'Night Shift'];
   final List<String> gates = ['all', 'GATE 1', 'GATE 2'];
@@ -42,42 +47,50 @@ class _GuardManagementPageState extends State<GuardManagementPage>
     super.dispose();
   }
 
-  void _loadGuards() {
-    // TODO: Implement API call to fetch guards
-    // For now, using sample data
+  Future<void> _loadGuards() async {
     setState(() {
-      guards = [
-        UserModel(
-          id: '1',
-          name: 'John Guard',
-          email: 'john@example.com',
-          designation: 'Staff',
-          role: 'guard',
-          shift: 'Day Shift',
-          assignedGates: ['GATE 1'],
-          isOnDuty: true,
-          token: '',
-          isAccountVerified: true,
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-        ),
-        UserModel(
-          id: '2',
-          name: 'Jane Guard',
-          email: 'jane@example.com',
-          designation: 'Staff',
-          role: 'guard',
-          shift: 'Night Shift',
-          assignedGates: ['GATE 2'],
-          isOnDuty: false,
-          token: '',
-          isAccountVerified: true,
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-        ),
-      ];
-      isLoading = false;
+      isLoading = true;
     });
+
+    try {
+      final queryParameters = {
+        'page': currentPage.toString(),
+        'limit': '10',
+        if (selectedShift != 'all') 'shift': selectedShift,
+        if (selectedGate != 'all') 'gate': selectedGate,
+        if (selectedStatus != 'all') 'status': selectedStatus,
+      };
+
+      final response = await ApiService.get(
+        '/user/guards/all',
+        queryParameters: queryParameters,
+      );
+
+      if (response['success'] == true) {
+        final List<dynamic> guardsData = response['guards'];
+        final pagination = response['pagination'];
+
+        setState(() {
+          guards = guardsData.map((guard) => UserModel.fromMap(guard)).toList();
+          if (pagination != null) {
+            totalPages = pagination['totalPages'] ?? 1;
+            hasNextPage = pagination['hasNext'] ?? false;
+            hasPrevPage = pagination['hasPrev'] ?? false;
+          }
+          isLoading = false;
+        });
+      } else {
+        throw Exception(response['message'] ?? 'Failed to load guards');
+      }
+    } catch (e) {
+      CustomToast.showError(
+        context: context,
+        message: 'Error loading guards: ${e.toString()}',
+      );
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   void _showEditGuardDialog(UserModel guard) {
@@ -158,8 +171,8 @@ class _GuardManagementPageState extends State<GuardManagementPage>
               child: const Text('Cancel'),
             ),
             ElevatedButton(
-              onPressed: () {
-                _updateGuard(guard.id, shiftController.text, selectedGates, isOnDuty);
+              onPressed: () async {
+                await _updateGuard(guard.id, shiftController.text, selectedGates, isOnDuty);
                 Navigator.pop(context);
               },
               child: const Text('Update'),
@@ -170,102 +183,36 @@ class _GuardManagementPageState extends State<GuardManagementPage>
     );
   }
 
-  void _updateGuard(String guardId, String shift, List<String> gates, bool isOnDuty) {
-    // TODO: Implement API call to update guard
-    CustomToast.showSuccess(
-      context: context,
-      message: 'Guard updated successfully!',
-    );
-    _loadGuards(); // Refresh the list
-  }
+  Future<void> _updateGuard(String guardId, String shift, List<String> gates, bool isOnDuty) async {
+    try {
+      final response = await ApiService.put(
+        '/user/guards/update/$guardId',
+        data: {
+          'shift': shift,
+          'assignedGates': gates,
+          'isOnDuty': isOnDuty,
+        },
+      );
 
-  Widget _buildGuardsList() {
-    if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (guards.isEmpty) {
-      return const Center(
-        child: Text(
-          'No guards found',
-          style: TextStyle(fontSize: 16, color: Colors.grey),
-        ),
+      if (response['success'] == true) {
+        CustomToast.showSuccess(
+          context: context,
+          message: 'Guard updated successfully!',
+        );
+        _loadGuards(); // Refresh the list
+      } else {
+        throw Exception(response['message'] ?? 'Failed to update guard');
+      }
+    } catch (e) {
+      CustomToast.showError(
+        context: context,
+        message: 'Error updating guard: ${e.toString()}',
       );
     }
-
-    return ListView.builder(
-      itemCount: guards.length,
-      itemBuilder: (context, index) {
-        final guard = guards[index];
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: guard.isOnDuty == true ? Colors.green : Colors.grey,
-              child: Icon(
-                Icons.security,
-                color: Colors.white,
-              ),
-            ),
-            title: Text(
-              guard.name,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Shift: ${guard.shift ?? "Not Assigned"}'),
-                Text('Gates: ${guard.assignedGates?.join(", ") ?? "None"}'),
-                Text(
-                  'Status: ${guard.isOnDuty == true ? "On Duty" : "Off Duty"}',
-                  style: TextStyle(
-                    color: guard.isOnDuty == true ? Colors.green : Colors.red,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-            trailing: PopupMenuButton(
-              itemBuilder: (context) => [
-                const PopupMenuItem(
-                  value: 'edit',
-                  child: Row(
-                    children: [
-                      Icon(Icons.edit),
-                      SizedBox(width: 8),
-                      Text('Edit'),
-                    ],
-                  ),
-                ),
-                const PopupMenuItem(
-                  value: 'activity',
-                  child: Row(
-                    children: [
-                      Icon(Icons.history),
-                      SizedBox(width: 8),
-                      Text('View Activity'),
-                    ],
-                  ),
-                ),
-              ],
-              onSelected: (value) {
-                switch (value) {
-                  case 'edit':
-                    _showEditGuardDialog(guard);
-                    break;
-                  case 'activity':
-                    _showActivityReport(guard);
-                    break;
-                }
-              },
-            ),
-          ),
-        );
-      },
-    );
   }
 
   void _showActivityReport(UserModel guard) {
+    // TODO: Implement actual activity report fetching
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -294,6 +241,131 @@ class _GuardManagementPageState extends State<GuardManagementPage>
     );
   }
 
+  Widget _buildGuardsList() {
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (guards.isEmpty) {
+      return const Center(
+        child: Text(
+          'No guards found',
+          style: TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            itemCount: guards.length,
+            itemBuilder: (context, index) {
+              final guard = guards[index];
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: guard.isOnDuty == true ? Colors.green : Colors.grey,
+                    child: Icon(
+                      Icons.security,
+                      color: Colors.white,
+                    ),
+                  ),
+                  title: Text(
+                    guard.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Shift: ${guard.shift ?? "Not Assigned"}'),
+                      Text('Gates: ${guard.assignedGates?.join(", ") ?? "None"}'),
+                      Text(
+                        'Status: ${guard.isOnDuty == true ? "On Duty" : "Off Duty"}',
+                        style: TextStyle(
+                          color: guard.isOnDuty == true ? Colors.green : Colors.red,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  trailing: PopupMenuButton(
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 'edit',
+                        child: Row(
+                          children: [
+                            Icon(Icons.edit),
+                            SizedBox(width: 8),
+                            Text('Edit'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'activity',
+                        child: Row(
+                          children: [
+                            Icon(Icons.history),
+                            SizedBox(width: 8),
+                            Text('View Activity'),
+                          ],
+                        ),
+                      ),
+                    ],
+                    onSelected: (value) {
+                      switch (value) {
+                        case 'edit':
+                          _showEditGuardDialog(guard);
+                          break;
+                        case 'activity':
+                          _showActivityReport(guard);
+                          break;
+                      }
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        // Pagination controls
+        if (totalPages > 1)
+          Container(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: hasPrevPage
+                      ? () {
+                          setState(() {
+                            currentPage--;
+                          });
+                          _loadGuards();
+                        }
+                      : null,
+                  child: const Text('Previous'),
+                ),
+                Text('Page $currentPage of $totalPages'),
+                ElevatedButton(
+                  onPressed: hasNextPage
+                      ? () {
+                          setState(() {
+                            currentPage++;
+                          });
+                          _loadGuards();
+                        }
+                      : null,
+                  child: const Text('Next'),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
   Widget _buildFilters() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -311,8 +383,9 @@ class _GuardManagementPageState extends State<GuardManagementPage>
               onChanged: (value) {
                 setState(() {
                   selectedShift = value ?? 'all';
+                  currentPage = 1; // Reset to first page when filter changes
                 });
-                // TODO: Apply filter
+                _loadGuards();
               },
             ),
           ),
@@ -329,8 +402,9 @@ class _GuardManagementPageState extends State<GuardManagementPage>
               onChanged: (value) {
                 setState(() {
                   selectedGate = value ?? 'all';
+                  currentPage = 1; // Reset to first page when filter changes
                 });
-                // TODO: Apply filter
+                _loadGuards();
               },
             ),
           ),
@@ -347,8 +421,9 @@ class _GuardManagementPageState extends State<GuardManagementPage>
               onChanged: (value) {
                 setState(() {
                   selectedStatus = value ?? 'all';
+                  currentPage = 1; // Reset to first page when filter changes
                 });
-                // TODO: Apply filter
+                _loadGuards();
               },
             ),
           ),
